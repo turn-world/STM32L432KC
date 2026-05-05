@@ -48,6 +48,11 @@
 #define	_DEF_LOW				0
 #define	_DEF_HIGH				1
 
+#define _DEF_CAN1             0
+#define _DEF_CAN2             1
+#define _DEF_CAN3             2
+#define _DEF_CAN4             3
+
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 
 #ifndef max
@@ -59,6 +64,59 @@
 #ifndef map
 #define map(value, in_min, in_max, out_min, out_max) ((value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 #endif
+
+
+#if 0
+typedef union
+{
+  uint8_t  u8Data[4];
+  uint16_t u16Data[2];
+  uint32_t u32Data;
+
+  int8_t   s8Data[4];
+  int16_t  s16Data[2];
+  int32_t  s32Data;
+
+  uint8_t  u8D;
+  uint16_t u16D;
+  uint32_t u32D;
+
+  int8_t   s8D;
+  int16_t  s16D;
+  int32_t  s32D;
+} data_t;
+#endif
+
+typedef struct
+{
+  uint8_t version[32];
+  uint8_t name[32];
+} firm_version_t;
+
+
+typedef struct
+{
+  uint32_t magic_number;
+
+  //-- fw info
+  //
+  uint32_t addr_tag;
+  uint32_t addr_fw;
+  uint32_t size_tag;
+
+
+  //-- tag info
+  //
+  uint32_t tag_flash_type;
+  uint32_t tag_flash_start;
+  uint32_t tag_flash_end;
+  uint32_t tag_flash_length;
+  uint32_t tag_flash_crc;
+  uint32_t tag_length;
+  uint8_t  tag_date_str[32];
+  uint8_t  tag_time_str[32];
+
+} firm_tag_t;
 
 
 #endif /* SRC_COMMON_DEF_H_ */

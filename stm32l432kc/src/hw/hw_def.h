@@ -10,13 +10,8 @@
 #ifndef SRC_HW_HW_DEF_H_
 #define SRC_HW_HW_DEF_H_
 
-
 #include "def.h"
 #include "bsp.h"
-
-#define _USE_HW_SD
-#define _USE_HW_FATFS
-#define _USE_HW_FLASH
 
 #define _USE_HW_LED
 #define      HW_LED_MAX_CH          1
@@ -34,22 +29,12 @@
 #define		 HW_BUTTON_MAX_CH		1
 
 #define	_USE_HW_GPIO
-#define		 HW_GPIO_MAX_CH			4
-
+#define		 HW_GPIO_MAX_CH			0
 #define _PIN_GPIO_SDCARD_DETECT		0
 
-
-#define _USE_HW_CDC
-#define _USE_HW_USB
-#define      HW_USE_CDC             1
-#define      HW_USE_MSC             1
-
-#define	_USE_HW_SPI
-#define HW_SPI_MAX_CH				1
-
-#define _USE_HW_LCD
-#define _USE_HW_ST7735
-#define		HW_LCD_WIDTH			160
-#define 	HW_LCD_HEIGHT        	80
+#define _USE_HW_CAN
+#define      HW_CAN_FD              0
+#define      HW_CAN_MAX_CH          2
+#define      HW_CAN_MSG_RX_BUF_MAX  32
 
 #endif /* SRC_HW_HW_DEF_H_ */

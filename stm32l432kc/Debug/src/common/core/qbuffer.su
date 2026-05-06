@@ -1,0 +1,9 @@
+../src/common/core/qbuffer.c:15:6:qbufferInit	4	static
+../src/common/core/qbuffer.c:20:6:qbufferCreate	32	static
+../src/common/core/qbuffer.c:33:6:qbufferCreateBySize	32	static
+../src/common/core/qbuffer.c:46:6:qbufferWrite	48	static
+../src/common/core/qbuffer.c:81:6:qbufferRead	40	static
+../src/common/core/qbuffer.c:115:10:qbufferPeekWrite	16	static
+../src/common/core/qbuffer.c:120:10:qbufferPeekRead	16	static
+../src/common/core/qbuffer.c:126:10:qbufferAvailable	24	static
+../src/common/core/qbuffer.c:136:6:qbufferFlush	16	static

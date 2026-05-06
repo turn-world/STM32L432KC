@@ -10,7 +10,7 @@
 
 
 #include "def.h"
-
+#include "stm32l4xx_hal.h"
 
 #define _USE_LOG_PRINT    1
 
@@ -19,10 +19,6 @@
 #else
 #define logPrintf(fmt, ...)
 #endif
-
-
-#include "stm32f4xx_hal.h"
-
 
 
 void bspInit(void);

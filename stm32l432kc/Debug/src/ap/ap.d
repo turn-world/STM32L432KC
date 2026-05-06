@@ -1,0 +1,78 @@
+src/ap/ap.o: ../src/ap/ap.c ../src/ap/ap.h \
+ C:/project/STM32L432KC/stm32l432kc/src/hw/hw.h \
+ C:/project/STM32L432KC/stm32l432kc/src/hw/hw_def.h \
+ C:/project/STM32L432KC/stm32l432kc/src/common/def.h \
+ C:/project/STM32L432KC/stm32l432kc/src/bsp/bsp.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h \
+ C:/project/STM32L432KC/stm32l432kc/src/bsp/stm32l4xx_hal_conf.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_rcc.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_def.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l4xx.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l432xx.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Include/core_cm4.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Include/cmsis_version.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Include/cmsis_compiler.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Include/cmsis_gcc.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Include/mpu_armv7.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Device/ST/STM32L4xx/Include/system_stm32l4xx.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_rcc_ex.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_gpio.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_gpio_ex.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_dma.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ll_dma.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_cortex.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_can.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_exti.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash_ex.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash_ramfunc.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr_ex.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h \
+ C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h \
+ C:/project/STM32L432KC/stm32l432kc/src/common/hw/include/led.h \
+ C:/project/STM32L432KC/stm32l432kc/src/hw/hw_def.h \
+ C:/project/STM32L432KC/stm32l432kc/src/common/hw/include/uart.h \
+ C:/project/STM32L432KC/stm32l432kc/src/common/hw/include/cli.h \
+ C:/project/STM32L432KC/stm32l432kc/src/common/hw/include/gpio.h \
+ C:/project/STM32L432KC/stm32l432kc/src/common/hw/include/can.h
+../src/ap/ap.h:
+C:/project/STM32L432KC/stm32l432kc/src/hw/hw.h:
+C:/project/STM32L432KC/stm32l432kc/src/hw/hw_def.h:
+C:/project/STM32L432KC/stm32l432kc/src/common/def.h:
+C:/project/STM32L432KC/stm32l432kc/src/bsp/bsp.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h:
+C:/project/STM32L432KC/stm32l432kc/src/bsp/stm32l4xx_hal_conf.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_rcc.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_def.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l4xx.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Device/ST/STM32L4xx/Include/stm32l432xx.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Include/core_cm4.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Include/cmsis_version.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Include/cmsis_compiler.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Include/cmsis_gcc.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Include/mpu_armv7.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/CMSIS/Device/ST/STM32L4xx/Include/system_stm32l4xx.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_rcc_ex.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_gpio.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_gpio_ex.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_dma.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_ll_dma.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_cortex.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_can.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_exti.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash_ex.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_flash_ramfunc.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr_ex.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h:
+C:/project/STM32L432KC/stm32l432kc/src/lib/cube_l432/Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h:
+C:/project/STM32L432KC/stm32l432kc/src/common/hw/include/led.h:
+C:/project/STM32L432KC/stm32l432kc/src/hw/hw_def.h:
+C:/project/STM32L432KC/stm32l432kc/src/common/hw/include/uart.h:
+C:/project/STM32L432KC/stm32l432kc/src/common/hw/include/cli.h:
+C:/project/STM32L432KC/stm32l432kc/src/common/hw/include/gpio.h:
+C:/project/STM32L432KC/stm32l432kc/src/common/hw/include/can.h:

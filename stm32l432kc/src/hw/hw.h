@@ -14,7 +14,6 @@
 
 #include "led.h"
 #include "uart.h"
-#include "rtc.h"
 #include "cli.h"
 #include "gpio.h"
 #include "can.h"

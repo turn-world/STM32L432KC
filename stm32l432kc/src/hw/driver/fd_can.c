@@ -23,32 +23,42 @@ typedef struct
   uint32_t tseg2;
 } can_baud_cfg_t;
 
-const can_baud_cfg_t can_baud_cfg_80m_normal[] =
+const can_baud_cfg_t can_baud_cfg_42m_normal[] =
 {
-  {50, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ}, // 100K, 87.5%
-  {40, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ}, // 125K, 87.5%
-  {20, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ}, // 250K, 87.5%
-  {10, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ}, // 500K, 87.5%
-  { 5, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ}, // 1M,   87.5%
+  {28, CAN_SJW_1TQ, CAN_BS1_12TQ, CAN_BS2_2TQ}, // 100K, 87.5%
+  {21, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ}, // 125K, 87.5%
+  {12, CAN_SJW_1TQ, CAN_BS1_11TQ, CAN_BS2_2TQ}, // 250K, 87.5%
+  {6,  CAN_SJW_1TQ, CAN_BS1_11TQ, CAN_BS2_2TQ}, // 500K, 87.5%
+  {3,  CAN_SJW_1TQ, CAN_BS1_11TQ, CAN_BS2_2TQ}, // 1M,   87.5%
 };
 
-const can_baud_cfg_t can_baud_cfg_80m_data[] =
+const can_baud_cfg_t can_baud_cfg_42m_data[] =
 {
-  {50, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ}, // 100K, 87.5%
-  {40, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ}, // 125K, 87.5%
-  {20, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ}, // 250K, 87.5%
-  {10, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ}, // 500K, 87.5%
-  { 5, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ}, // 1M,   87.5%
+  {28, CAN_SJW_1TQ, CAN_BS1_12TQ, CAN_BS2_2TQ}, // 100K, 87.5%
+  {21, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ}, // 125K, 87.5%
+  {12, CAN_SJW_1TQ, CAN_BS1_11TQ, CAN_BS2_2TQ}, // 250K, 87.5%
+  {6,  CAN_SJW_1TQ, CAN_BS1_11TQ, CAN_BS2_2TQ}, // 500K, 87.5%
+  {3,  CAN_SJW_1TQ, CAN_BS1_11TQ, CAN_BS2_2TQ}, // 1M,   87.5%
 };
 
-const can_baud_cfg_t *p_baud_normal = can_baud_cfg_80m_normal;
-const can_baud_cfg_t *p_baud_data   = can_baud_cfg_80m_data;
+const can_baud_cfg_t *p_baud_normal = can_baud_cfg_42m_normal;
+const can_baud_cfg_t *p_baud_data   = can_baud_cfg_42m_data;
 
 
 const uint32_t dlc_len_tbl[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64};
 
-const uint32_t dlc_tbl[] =     {0, 1, 2, 3, 4, 5, 6, 7, 8,
+const uint32_t dlc_tbl[] =
+    {
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
       8,
+      9,
       8,
       8,
       8,
@@ -99,6 +109,7 @@ typedef struct
 
 
 CAN_HandleTypeDef hcan1;
+CAN_HandleTypeDef hcan2;
 
 static can_tbl_t can_tbl[CAN_MAX_CH];
 
@@ -126,7 +137,6 @@ bool canInit(void)
   {
     can_tbl[i].is_init  = true;
     can_tbl[i].is_open  = false;
-
     can_tbl[i].err_code = CAN_ERR_NONE;
     can_tbl[i].state    = 0;
     can_tbl[i].recovery_cnt = 0;
@@ -140,6 +150,7 @@ bool canInit(void)
   }
 
   can_tbl[_DEF_CAN1].h_can = &hcan1;
+  can_tbl[_DEF_CAN2].h_can = &hcan2;
 
  logPrintf("[OK] canInit()\n");
 
@@ -175,6 +186,7 @@ bool canOpen(uint8_t ch, CanMode_t mode, CanFrame_t frame, CanBaud_t baud, CanBa
   switch(ch)
   {
     case _DEF_CAN1:
+    case _DEF_CAN2:
       p_can->Init.Mode                 = mode_tbl[mode];
       p_can->Init.AutoRetransmission   = ENABLE;
       p_can->Init.Prescaler            = p_baud_normal[baud].prescaler;
@@ -391,6 +403,7 @@ bool canMsgWrite(uint8_t ch, can_msg_t *p_msg, uint32_t timeout)
 
   if (can_tbl[ch].err_code & CAN_ERR_BUS_OFF) return false;
 
+
   p_can = can_tbl[ch].h_can;
 
   switch(p_msg->id_type)
@@ -416,6 +429,7 @@ bool canMsgWrite(uint8_t ch, can_msg_t *p_msg, uint32_t timeout)
     can_tbl[ch].fifo_full_cnt++;
     return false;
   }
+
 
   pre_time = millis();
   if(HAL_CAN_AddTxMessage(p_can, &tx_header, p_msg->data, &tx_mailbox) == HAL_OK)

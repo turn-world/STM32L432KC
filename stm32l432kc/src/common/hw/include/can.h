@@ -116,11 +116,13 @@ typedef struct
 {
   uint32_t id;
   uint16_t length;
+
   #if HW_CAN_FD == 1
   uint8_t  data[64];
   #else
   uint8_t  data[8];
   #endif
+
   uint32_t timestamp;
 
   CanDlc_t      dlc;
@@ -136,6 +138,7 @@ bool     canInit(void);
 bool     canOpen(uint8_t ch, CanMode_t mode, CanFrame_t frame, CanBaud_t baud, CanBaud_t baud_data);
 bool     canIsOpen(uint8_t ch);
 void     canClose(uint8_t ch);
+//완료
 bool     canGetInfo(uint8_t ch, can_info_t *p_info);
 bool     canConfigFilter(uint8_t ch, uint8_t index, CanIdType_t id_type, CanFilterType_t ft_type, uint32_t id, uint32_t id_mask);
 

@@ -17,5 +17,6 @@ void hwInit(void)
   ledInit();
   uartInit();
   gpioInit();
+
   //canInit();
 }

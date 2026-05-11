@@ -1,1 +1,13 @@
-.metadata
+.metadata/
+stm32l432kc/Debug/
+stm32l432kc/Release/
+
+*.o
+*.d
+*.elf
+*.map
+*.list
+*.su
+*.cyclo
+
+*.launch

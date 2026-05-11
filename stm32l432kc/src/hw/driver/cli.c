@@ -16,6 +16,7 @@
 #define CLI_KEY_BACK              0x08
 #define CLI_KEY_DEL               0x7F
 #define CLI_KEY_ENTER             0x0D
+#define CLI_KEY_LINE_FEED         0x0A
 #define CLI_KEY_ESC               0x1B
 #define CLI_KEY_LEFT              0x44
 #define CLI_KEY_RIGHT             0x43
@@ -140,6 +141,11 @@ bool cliOpen(uint8_t ch, uint32_t baud)
 
   cli_node.is_open = uartOpen(ch, baud);
 
+  if (cli_node.is_open == true)
+  {
+    cliShowPrompt(&cli_node);
+  }
+
   return cli_node.is_open;
 }
 
@@ -237,6 +243,7 @@ bool cliUpdate(cli_t *p_cli, uint8_t rx_data)
       // 엔터
       //
       case CLI_KEY_ENTER:
+      case CLI_KEY_LINE_FEED:
         if (line->count > 0)
         {
           cliLineAdd(p_cli);

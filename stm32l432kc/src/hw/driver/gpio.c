@@ -22,7 +22,7 @@ typedef struct
 
 button_tbl_t gpio_tbl[GPIO_MAX_CH] =
 {
-		{GPIOB, GPIO_PIN_9, _DEF_INPUT_PULLUP, GPIO_PIN_RESET, GPIO_PIN_SET  , true	   },	// 0. SD CD
+		//{GPIOB, GPIO_PIN_3, _DEF_INPUT_PULLUP, GPIO_PIN_RESET, GPIO_PIN_SET  , true	},	// 0. SD CD
 };
 
 

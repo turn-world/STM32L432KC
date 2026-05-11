@@ -14,7 +14,6 @@
 void apInit(void)
 {
   cliOpen(_DEF_UART1, 57600);
-
 }
 
 void apMain(void)

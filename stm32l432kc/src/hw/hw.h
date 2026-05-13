@@ -17,6 +17,7 @@
 #include "cli.h"
 #include "gpio.h"
 #include "can.h"
+#include "DM542/dm542.h"
 
 void hwInit(void);
 

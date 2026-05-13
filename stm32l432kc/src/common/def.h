@@ -65,6 +65,10 @@
 #define map(value, in_min, in_max, out_min, out_max) ((value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 #endif
 
+#define _DEF_DM1        0
+#define _DEF_DM2        1
+#define _DEF_DM3        2
+#define _DEF_DM4        3
 
 #if 0
 typedef union

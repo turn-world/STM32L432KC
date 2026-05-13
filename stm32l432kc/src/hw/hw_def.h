@@ -29,7 +29,7 @@
 #define		 HW_BUTTON_MAX_CH		1
 
 #define	_USE_HW_GPIO
-#define		 HW_GPIO_MAX_CH			3
+#define		 HW_GPIO_MAX_CH			    4
 #define _PIN_GPIO_SDCARD_DETECT		0
 
 #define _USE_HW_CAN

@@ -44,6 +44,7 @@
 #define	_DEF_OUTPUT				3
 #define _DEF_OUTPUT_PULLUP		4
 #define	_DEF_OUTPUT_PULLDOWN	5
+#define _DEF_OUTPUT_OPEN_DRAIN 6
 
 #define	_DEF_LOW				0
 #define	_DEF_HIGH				1

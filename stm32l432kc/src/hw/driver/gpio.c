@@ -26,9 +26,8 @@ button_tbl_t gpio_tbl[GPIO_MAX_CH] =
     {GPIOA, GPIO_PIN_3, _DEF_INPUT_PULLUP, GPIO_PIN_RESET, GPIO_PIN_SET  , true  }, // PUL
     {GPIOA, GPIO_PIN_4, _DEF_INPUT_PULLUP, GPIO_PIN_RESET, GPIO_PIN_SET  , true  }, // DIR
     {GPIOA, GPIO_PIN_5, _DEF_INPUT_PULLUP, GPIO_PIN_RESET, GPIO_PIN_SET  , true  }, // ENL
-    {GPIOA, GPIO_PIN_9, _DEF_INPUT_PULLUP, GPIO_PIN_RESET, GPIO_PIN_SET  , true  }, // test
+    {GPIOA, GPIO_PIN_9, _DEF_OUTPUT_OPEN_DRAIN, GPIO_PIN_RESET, GPIO_PIN_SET  , true  }, // test
 };
-
 
 #ifdef _USE_HW_CLI
 static void cliGpio(cli_args_t *args);
@@ -39,7 +38,9 @@ bool gpioInit(void)
 	bool ret = true;
 
 	/* GPIO Ports Clock Enable */
-		__HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
 
 	for(int i = 0; i < GPIO_MAX_CH; i++)
 	{
@@ -185,9 +186,6 @@ void gpioPinPulseCount(uint8_t ch, uint32_t count, uint32_t delay_ms)
 		}
 	}
 }
-
-
-
 
 #ifdef _USE_HW_CLI
 static void cliGpio(cli_args_t *args)

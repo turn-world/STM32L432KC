@@ -23,5 +23,4 @@ void gpioPinPulseCount(uint8_t ch, uint32_t count, uint32_t delay_ms);
 
 #endif
 
-
 #endif /* SRC_COMMON_HW_INCLUDE_GPIO_H_ */

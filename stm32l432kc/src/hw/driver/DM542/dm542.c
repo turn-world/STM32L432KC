@@ -19,15 +19,15 @@
 #define DM542_DIR_SETUP_DELAY_US        5
 #define DM542_CLI_DEFAULT_DELAY_US      1000
 
-static dm542_t dm542_driver;
+dm542_t dm542_driver;
 
-static void dm542DelayUs(uint32_t delay_us);
+static void     dm542DelayUs(uint32_t delay_us);
 static uint32_t dm542AbsStep(int32_t step);
-static int32_t dm542MmToStep(dm542_t *p_driver, float mm);
+static int32_t  dm542MmToStep(dm542_t *p_driver, float mm);
 
 #ifdef _USE_HW_CLI
-static void cliDm542(cli_args_t *args);
-static bool is_cli_init = false;
+static void     cliDm542(cli_args_t *args);
+static bool     is_cli_init = false;
 #endif
 
 bool dm542Init(void)

@@ -17,7 +17,11 @@
 #include "cli.h"
 #include "gpio.h"
 #include "can.h"
+#include "tim.h"
+#include "tim_gpio.h"
+#include "tim_pwm.h"
 #include "DM542/dm542.h"
+#include "tim_pwm.h"
 
 void hwInit(void);
 

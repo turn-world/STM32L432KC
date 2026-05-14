@@ -37,7 +37,19 @@
 #define      HW_CAN_MAX_CH          1
 #define      HW_CAN_MSG_RX_BUF_MAX  32
 
+#define _USE_TIM
+#define     HW_USE_TIM_MAX_CH       1
+#define     _DEF_TIM6               0
+
 #define _USE_DM542
 #define      HW_DM542_MAX_CH        1
+
+#define _USE_TIM_GPIO
+#define    HW_TIM_GPIO_MAX_CH       1
+
+#define _USE_TIM_PWM
+#define     HW_TIM_PWM_MAX_CH        1
+
+#define _DEF_TIM_PWM_DM542_PUL   0
 
 #endif /* SRC_HW_HW_DEF_H_ */

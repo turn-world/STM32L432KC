@@ -71,6 +71,11 @@
 #define _DEF_DM3        2
 #define _DEF_DM4        3
 
+#define _DEF_TIM1			0
+#define _DEF_TIM2			1
+#define _DEF_TIM3			2
+#define _DEF_TIM4			3
+
 #if 0
 typedef union
 {

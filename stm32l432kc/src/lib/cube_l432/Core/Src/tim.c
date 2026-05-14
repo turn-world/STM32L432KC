@@ -25,6 +25,7 @@
 /* USER CODE END 0 */
 
 TIM_HandleTypeDef htim6;
+
 TIM_HandleTypeDef htim16;
 
 /* TIM6 init function */
@@ -61,6 +62,10 @@ void MX_TIM6_Init(void)
 
 }
 /* TIM16 init function */
+
+
+
+
 void MX_TIM16_Init(void)
 {
 

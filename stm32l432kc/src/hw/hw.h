@@ -9,6 +9,8 @@
 #define SRC_HW_HW_H_
 
 
+#include <pwm.h>
+#include <pwm.h>
 #include "hw_def.h"
 
 
@@ -19,9 +21,7 @@
 #include "can.h"
 #include "tim.h"
 #include "tim_gpio.h"
-#include "tim_pwm.h"
 #include "DM542/dm542.h"
-#include "tim_pwm.h"
 
 void hwInit(void);
 

@@ -54,6 +54,21 @@
 #define _DEF_CAN3             2
 #define _DEF_CAN4             3
 
+#define _DEF_DM1        0
+#define _DEF_DM2        1
+#define _DEF_DM3        2
+#define _DEF_DM4        3
+
+#define _DEF_TIM1     0
+#define _DEF_TIM2     1
+#define _DEF_TIM3     2
+#define _DEF_TIM4     3
+
+#define _DEF_PWM1     0
+#define _DEF_PWM2     1
+#define _DEF_PWM3     2
+#define _DEF_PWM4     3
+
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 
 #ifndef max
@@ -66,15 +81,6 @@
 #define map(value, in_min, in_max, out_min, out_max) ((value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 #endif
 
-#define _DEF_DM1        0
-#define _DEF_DM2        1
-#define _DEF_DM3        2
-#define _DEF_DM4        3
-
-#define _DEF_TIM1			0
-#define _DEF_TIM2			1
-#define _DEF_TIM3			2
-#define _DEF_TIM4			3
 
 #if 0
 typedef union

@@ -36,10 +36,7 @@ bool gpioInit(void)
 {
 	bool ret = true;
 
-	/* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
-  __HAL_RCC_GPIOB_CLK_ENABLE();
+
 
 	for(int i = 0; i < GPIO_MAX_CH; i++)
 	{

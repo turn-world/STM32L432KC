@@ -302,13 +302,40 @@ static void cliTimPwm(cli_args_t *args)
     ret = true;
   }
 
-  if(args->argc == 2 && args->isStr(0, "start") == true)
+  if(args->argc == 3 && args->isStr(0, "start") == true)
   {
     uint8_t ch = (uint8_t)args->getData(1);
+    uint32_t run_ms = (uint32_t)args->getData(2);
     bool result;
 
     result = timPwmStart(ch);
-    cliPrintf("tim_pwm start %d : %s\n", ch, result ? "ok" : "fail");
+
+    if(result == true)
+    {
+      delay(run_ms);
+      result = timPwmStop(ch);
+    }
+
+    cliPrintf("tim_pwm start %d %dms : %s\n", ch, (int)run_ms, result ? "ok" : "fail");
+
+    ret = true;
+  }
+
+  if(args->argc == 3 && args->isStr(0, "start_us") == true)
+  {
+    uint8_t ch = (uint8_t)args->getData(1);
+    uint32_t run_us = (uint32_t)args->getData(2);
+    bool result;
+
+    result = timPwmStart(ch);
+
+    if(result == true)
+    {
+      delayUs(run_us);
+      result = timPwmStop(ch);
+    }
+
+    cliPrintf("tim_pwm start_us %d %dus : %s\n", ch, (int)run_us, result ? "ok" : "fail");
 
     ret = true;
   }
@@ -357,7 +384,8 @@ static void cliTimPwm(cli_args_t *args)
     cliPrintf("tim_pwm info\n");
     cliPrintf("tim_pwm open ch[0~%d]\n", TIM_PWM_MAX_CH - 1);
     cliPrintf("tim_pwm set ch[0~%d] pp:od prescaler period pulse\n", TIM_PWM_MAX_CH - 1);
-    cliPrintf("tim_pwm start ch[0~%d]\n", TIM_PWM_MAX_CH - 1);
+    cliPrintf("tim_pwm start ch[0~%d] run_ms\n", TIM_PWM_MAX_CH - 1);
+    cliPrintf("tim_pwm start_us ch[0~%d] run_us\n", TIM_PWM_MAX_CH - 1);
     cliPrintf("tim_pwm stop ch[0~%d]\n", TIM_PWM_MAX_CH - 1);
   }
 }

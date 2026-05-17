@@ -21,7 +21,6 @@
 
 dm542_t dm542_driver;
 
-static void     dm542DelayUs(uint32_t delay_us);
 static uint32_t dm542AbsStep(int32_t step);
 static int32_t  dm542MmToStep(dm542_t *p_driver, float mm);
 
@@ -106,9 +105,9 @@ void dm542Step(dm542_t *p_driver)
   }
 
   gpioPinWrite(_PIN_GPIO_DM542_PUL, true);
-  dm542DelayUs(DM542_STEP_PULSE_WIDTH_US);
+  delayUs(DM542_STEP_PULSE_WIDTH_US);
   gpioPinWrite(_PIN_GPIO_DM542_PUL, false);
-  dm542DelayUs(DM542_STEP_PULSE_WIDTH_US);
+  delayUs(DM542_STEP_PULSE_WIDTH_US);
 }
 
 void dm542MoveStep(dm542_t *p_driver, int32_t step, uint32_t pulse_delay_us)
@@ -121,13 +120,13 @@ void dm542MoveStep(dm542_t *p_driver, int32_t step, uint32_t pulse_delay_us)
   }
 
   dm542SetDir(p_driver, step > 0);
-  dm542DelayUs(DM542_DIR_SETUP_DELAY_US);
+  delayUs(DM542_DIR_SETUP_DELAY_US);
   step_count = dm542AbsStep(step);
 
   for (uint32_t i = 0; i < step_count; i++)
   {
     dm542Step(p_driver);
-    dm542DelayUs(pulse_delay_us);
+    delayUs(pulse_delay_us);
   }
 }
 
@@ -168,40 +167,6 @@ static int32_t dm542MmToStep(dm542_t *p_driver, float mm)
   }
 
   return (int32_t)(step_f - 0.5f);
-}
-
-static void dm542DelayUs(uint32_t delay_us)
-{
-  static bool is_init = false;
-  uint32_t start_tick;
-  uint32_t wait_tick;
-  uint32_t tick_per_us;
-
-  if (delay_us == 0)
-  {
-    return;
-  }
-
-  if (is_init == false)
-  {
-    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
-    DWT->CYCCNT = 0;
-    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-    is_init = true;
-  }
-
-  tick_per_us = SystemCoreClock / 1000000U;
-  if (tick_per_us == 0)
-  {
-    tick_per_us = 1;
-  }
-
-  wait_tick = tick_per_us * delay_us;
-  start_tick = DWT->CYCCNT;
-
-  while ((DWT->CYCCNT - start_tick) < wait_tick)
-  {
-  }
 }
 
 #ifdef _USE_HW_CLI

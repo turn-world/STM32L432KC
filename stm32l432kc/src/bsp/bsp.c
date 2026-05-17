@@ -13,11 +13,28 @@
 
 void SystemClock_Config(void);
 
+static bool is_delay_us_init = false;
+
+static uint32_t delayUsGetTickPerUs(void)
+{
+  uint32_t tick_per_us;
+
+  tick_per_us = SystemCoreClock / 1000000U;
+
+  if(tick_per_us == 0)
+  {
+    tick_per_us = 1;
+  }
+
+  return tick_per_us;
+}
+
 
 void bspInit(void)
 {
   HAL_Init();
   SystemClock_Config();
+  delayUsInit();
 
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
@@ -40,9 +57,82 @@ void delay(uint32_t ms)
 #endif
 }
 
+bool delayUsInit(void)
+{
+  CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+  DWT->CYCCNT = 0;
+  DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+
+  is_delay_us_init = (DWT->CTRL & DWT_CTRL_CYCCNTENA_Msk) ? true : false;
+
+  return is_delay_us_init;
+}
+
+void delayUs(uint32_t us)
+{
+  uint32_t tick_per_us;
+
+  if(us == 0)
+  {
+    return;
+  }
+
+  if(is_delay_us_init != true)
+  {
+    if(delayUsInit() != true)
+    {
+      return;
+    }
+  }
+
+  tick_per_us = delayUsGetTickPerUs();
+
+  while(us > 0)
+  {
+    uint32_t max_us;
+    uint32_t wait_us;
+    uint32_t wait_tick;
+    uint32_t start_tick;
+
+    max_us = 0xFFFFFFFFU / tick_per_us;
+    wait_us = us;
+
+    if(wait_us > max_us)
+    {
+      wait_us = max_us;
+    }
+
+    wait_tick = wait_us * tick_per_us;
+    start_tick = DWT->CYCCNT;
+
+    while((DWT->CYCCNT - start_tick) < wait_tick)
+    {
+    }
+
+    us -= wait_us;
+  }
+}
+
 uint32_t millis(void)
 {
   return HAL_GetTick();
+}
+
+uint32_t micros(void)
+{
+  uint32_t tick_per_us;
+
+  if(is_delay_us_init != true)
+  {
+    if(delayUsInit() != true)
+    {
+      return 0;
+    }
+  }
+
+  tick_per_us = delayUsGetTickPerUs();
+
+  return DWT->CYCCNT / tick_per_us;
 }
 
 int __io_putchar(int ch)

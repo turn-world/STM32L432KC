@@ -24,5 +24,5 @@ void hwInit(void)
 
 
   dm542Init();
-  //canInit();
+  canInit();
 }

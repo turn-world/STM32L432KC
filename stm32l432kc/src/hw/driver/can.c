@@ -14,6 +14,12 @@
 
 #define CAN_RECOVERY_FAIL_CNT_MAX     6
 
+#define CAN_BAMOCAR_CMD_ID            0x201
+#define CAN_BAMOCAR_RSP_ID            0x181
+#define CAN_BAMOCAR_STATUS_REQ        0x3D
+#define CAN_BAMOCAR_STATUS_REG        0x40
+#define CAN_BAMOCAR_STATUS_TIMEOUT    200
+
 
 typedef struct
 {
@@ -139,6 +145,7 @@ bool canInit(void)
     qbufferCreateBySize(&can_tbl[i].q_msg, (uint8_t *)&can_tbl[i].can_msg[0], sizeof(can_msg_t), CAN_MSG_RX_BUF_MAX);
   }
 
+  hcan1.Instance = CAN1;
   can_tbl[_DEF_CAN1].h_can = &hcan1;
 
  logPrintf("[OK] canInit()\n");
@@ -853,6 +860,45 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
   }
 }
 
+void HAL_CAN_MspInit(CAN_HandleTypeDef* canHandle)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+
+  if(canHandle->Instance==CAN1)
+  {
+    __HAL_RCC_CAN1_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+
+    GPIO_InitStruct.Pin = GPIO_PIN_11|GPIO_PIN_12;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF9_CAN1;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    HAL_NVIC_SetPriority(CAN1_TX_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(CAN1_TX_IRQn);
+    HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
+    HAL_NVIC_SetPriority(CAN1_SCE_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(CAN1_SCE_IRQn);
+  }
+}
+
+void HAL_CAN_MspDeInit(CAN_HandleTypeDef* canHandle)
+{
+  if(canHandle->Instance==CAN1)
+  {
+    __HAL_RCC_CAN1_CLK_DISABLE();
+
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_11|GPIO_PIN_12);
+
+    HAL_NVIC_DisableIRQ(CAN1_TX_IRQn);
+    HAL_NVIC_DisableIRQ(CAN1_RX0_IRQn);
+    HAL_NVIC_DisableIRQ(CAN1_SCE_IRQn);
+  }
+}
+
 #ifdef _USE_HW_CLI
 void cliCan(cli_args_t *args)
 {
@@ -1145,6 +1191,97 @@ void cliCan(cli_args_t *args)
     ret = true;
   }
 
+  if (args->argc == 1 && args->isStr(0, "bamocar_status"))
+  {
+    uint8_t ch = _DEF_CAN1;
+    uint32_t pre_time;
+    bool found = false;
+    can_msg_t msg;
+
+    if (canIsOpen(ch) != true)
+    {
+      if (canOpen(ch, CAN_NORMAL, CAN_CLASSIC, CAN_500K, CAN_500K) != true)
+      {
+        cliPrintf("canOpen() : False\n");
+        canUnLock();
+        return;
+      }
+    }
+
+    if (canConfigFilter(ch, 0, CAN_STD, CAN_ID_MASK, CAN_BAMOCAR_RSP_ID, 0x7FF) != true)
+    {
+      cliPrintf("canConfigFilter() : False\n");
+      canUnLock();
+      return;
+    }
+
+    canMsgInit(&msg, CAN_CLASSIC, CAN_STD, CAN_DLC_3);
+    msg.id      = CAN_BAMOCAR_CMD_ID;
+    msg.data[0] = CAN_BAMOCAR_STATUS_REQ;
+    msg.data[1] = CAN_BAMOCAR_STATUS_REG;
+    msg.data[2] = 0x00;
+
+    cliPrintf("TX -> id std: 0x%03X, L:%02d, 0x%02X 0x%02X 0x%02X\n",
+              (unsigned int)msg.id,
+              msg.length,
+              msg.data[0],
+              msg.data[1],
+              msg.data[2]);
+
+    if (canMsgWrite(ch, &msg, 10) != true)
+    {
+      cliPrintf("canMsgWrite() : False\n");
+      canUnLock();
+      return;
+    }
+
+    pre_time = millis();
+    while (millis() - pre_time < CAN_BAMOCAR_STATUS_TIMEOUT)
+    {
+      canUpdate();
+
+      if (canMsgAvailable(ch))
+      {
+        can_msg_t rx_msg;
+
+        canMsgRead(ch, &rx_msg);
+
+        cliPrintf("RX <- id ");
+        if (rx_msg.id_type == CAN_STD)
+        {
+          cliPrintf("std ");
+        }
+        else
+        {
+          cliPrintf("ext ");
+        }
+        cliPrintf(": 0x%08X, L:%02d, ", (unsigned int)rx_msg.id, rx_msg.length);
+        for (int i=0; i<rx_msg.length; i++)
+        {
+          cliPrintf("0x%02X ", rx_msg.data[i]);
+        }
+        cliPrintf("\n");
+
+        if (rx_msg.id == CAN_BAMOCAR_RSP_ID && rx_msg.length >= 3 && rx_msg.data[0] == CAN_BAMOCAR_STATUS_REG)
+        {
+          uint16_t status;
+
+          status = rx_msg.data[1] | (rx_msg.data[2] << 8);
+          cliPrintf("bamocar status : 0x%04X\n", (unsigned int)status);
+          found = true;
+          break;
+        }
+      }
+    }
+
+    if (found != true)
+    {
+      cliPrintf("bamocar status timeout\n");
+    }
+
+    ret = true;
+  }
+
   if (args->argc == 2 && args->isStr(0, "recovery"))
   {
     uint8_t ch;
@@ -1165,6 +1302,7 @@ void cliCan(cli_args_t *args)
     cliPrintf("can open test ch[0~%d]\n", CAN_MAX_CH-1);
     cliPrintf("can read_test ch[0~%d]\n", CAN_MAX_CH-1);
     cliPrintf("can send_test ch[0~%d] can:fd\n", CAN_MAX_CH-1);
+    cliPrintf("can bamocar_status\n");
     cliPrintf("can recovery ch[0~%d]\n", CAN_MAX_CH-1);
   }
 }

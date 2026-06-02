@@ -22,6 +22,9 @@
 
 
 void bspInit(void);
+bool delayUsInit(void);  // us delay counter init
+void delayUs(uint32_t us); // us delay
+uint32_t micros(void);  // us counter
 
 void delay(uint32_t ms); // ms단위로 지연 시키는 함수
 uint32_t millis(void); 	// ms단위로 바뀌는 카운트 값

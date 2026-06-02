@@ -18,8 +18,9 @@ bool gpioPinMode(uint8_t ch, uint8_t mode);
 void gpioPinWrite(uint8_t ch, bool value);
 bool gpioPinRead(uint8_t ch);
 void gpioPinToggle(uint8_t ch);
+void gpioPinToggleCount(uint8_t ch, uint32_t count, uint32_t delay_ms);
+void gpioPinPulseCount(uint8_t ch, uint32_t count, uint32_t delay_ms);
 
 #endif
-
 
 #endif /* SRC_COMMON_HW_INCLUDE_GPIO_H_ */

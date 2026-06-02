@@ -17,12 +17,5 @@ void hwInit(void)
   ledInit();
   uartInit();
   gpioInit();
-
-  timPwmInit();
-  // timInit();
-  // timGpioInit();
-
-
-  dm542Init();
   canInit();
 }

@@ -29,25 +29,13 @@
 #define		 HW_BUTTON_MAX_CH		1
 
 #define	_USE_HW_GPIO
-#define		 HW_GPIO_MAX_CH			    4
+#define		 HW_GPIO_MAX_CH			    0
+
 #define _PIN_GPIO_SDCARD_DETECT		0
 
 #define _USE_HW_CAN
 #define      HW_CAN_FD              0
 #define      HW_CAN_MAX_CH          1
 #define      HW_CAN_MSG_RX_BUF_MAX  32
-
-#define _USE_TIM
-#define     HW_USE_TIM_MAX_CH       1
-#define     _DEF_TIM6               0
-
-#define _USE_DM542
-#define      HW_DM542_MAX_CH        1
-
-#define _USE_TIM_GPIO
-#define    HW_TIM_GPIO_MAX_CH       1
-
-#define _USE_TIM_PWM
-#define     HW_TIM_PWM_MAX_CH        1
 
 #endif /* SRC_HW_HW_DEF_H_ */

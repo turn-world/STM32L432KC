@@ -148,7 +148,7 @@ bool canInit(void)
   hcan1.Instance = CAN1;
   can_tbl[_DEF_CAN1].h_can = &hcan1;
 
- logPrintf("[OK] canInit()\n");
+// logPrintf("[OK] canInit()\n");
 
 #ifdef _USE_HW_CLI
   cliAdd("can", cliCan);

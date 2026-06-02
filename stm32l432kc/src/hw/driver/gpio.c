@@ -22,10 +22,7 @@ typedef struct
 
 button_tbl_t gpio_tbl[GPIO_MAX_CH] =
 {
-    {GPIOA, GPIO_PIN_3, _DEF_INPUT_PULLUP, GPIO_PIN_RESET, GPIO_PIN_SET  , true  }, // PUL
-    {GPIOA, GPIO_PIN_4, _DEF_INPUT_PULLUP, GPIO_PIN_RESET, GPIO_PIN_SET  , true  }, // DIR
-    {GPIOA, GPIO_PIN_5, _DEF_INPUT_PULLUP, GPIO_PIN_RESET, GPIO_PIN_SET  , true  }, // ENL
-    {GPIOA, GPIO_PIN_9, _DEF_OUTPUT_OPEN_DRAIN, GPIO_PIN_RESET, GPIO_PIN_SET  , true  }, // test
+
 };
 
 #ifdef _USE_HW_CLI

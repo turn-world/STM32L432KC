@@ -18,5 +18,15 @@ void hwInit(void)
   uartInit();
   gpioInit();
 
+<<<<<<< Updated upstream
   //canInit();
+=======
+  timPwmInit();
+  // timInit();
+  // timGpioInit();
+
+
+  dm542Init();
+  canInit();
+>>>>>>> Stashed changes
 }

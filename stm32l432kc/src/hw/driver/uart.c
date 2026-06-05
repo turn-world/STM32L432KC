@@ -14,7 +14,6 @@
 
 #define _USE_UART1
 static bool is_open[UART_MAX_CH];
-static bool is_rx_dma_open[UART_MAX_CH];
 
 #ifdef _USE_UART1
 static qbuffer_t qbuffer[UART_MAX_CH];
@@ -39,7 +38,6 @@ bool uartInit(void)
   for (int i=0; i<UART_MAX_CH; i++)
   {
     is_open[i] = false;
-    is_rx_dma_open[i] = false;
   }
 
 
@@ -70,7 +68,6 @@ bool uartOpen(uint8_t ch, uint32_t baud)
           {
             HAL_UART_DeInit(&huart2);
           }
-          is_rx_dma_open[ch] = false;
 
           qbufferCreate(&qbuffer[ch], &rx_buf[0], 256);
 
@@ -86,16 +83,14 @@ bool uartOpen(uint8_t ch, uint32_t baud)
     {
       ret = true;
       is_open[ch] = true;
-      qbuffer[ch].in  = 0;
-      qbuffer[ch].out = 0;
 
-      if(HAL_UART_Receive_DMA(&huart2, (uint8_t *)&rx_buf[0], 256) == HAL_OK &&
-         hdma_usart2_rx.Instance != NULL)
+      if(HAL_UART_Receive_DMA(&huart2, (uint8_t *)&rx_buf[0], 256) != HAL_OK)
       {
-        is_rx_dma_open[ch] = true;
-        qbuffer[ch].in  = qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR;
-        qbuffer[ch].out = qbuffer[ch].in;
+        ret = false;
       }
+
+      qbuffer[ch].in  = qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR;
+      qbuffer[ch].out = qbuffer[ch].in;
     }
 #endif
     break;
@@ -118,7 +113,6 @@ bool uartOpen(uint8_t ch, uint32_t baud)
       {
         HAL_UART_DeInit(&huart2);
       }
-      is_rx_dma_open[ch] = false;
 
       qbufferCreate(&qbuffer[ch], &rx_buf[0], 256);
 
@@ -135,16 +129,14 @@ bool uartOpen(uint8_t ch, uint32_t baud)
       {
         ret = true;
         is_open[ch] = true;
-        qbuffer[ch].in  = 0;
-        qbuffer[ch].out = 0;
 
-        if(HAL_UART_Receive_DMA(&huart2, (uint8_t *)&rx_buf[0], 256) == HAL_OK &&
-           hdma_usart2_rx.Instance != NULL)
+        if(HAL_UART_Receive_DMA(&huart2, (uint8_t *)&rx_buf[0], 256) != HAL_OK)
         {
-          is_rx_dma_open[ch] = true;
-          qbuffer[ch].in  = qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR;
-          qbuffer[ch].out = qbuffer[ch].in;
+          ret = false;
         }
+
+        qbuffer[ch].in  = qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR;
+        qbuffer[ch].out = qbuffer[ch].in;
       }
       #endif
       break;
@@ -161,10 +153,6 @@ uint32_t uartAvailable(uint8_t ch)
   {
     case _DEF_UART1:
 #ifdef _USE_UART1
-      if (is_rx_dma_open[ch] != true || hdma_usart2_rx.Instance == NULL)
-      {
-        break;
-      }
         qbuffer[ch].in = (qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR);
         ret = qbufferAvailable(&qbuffer[ch]);
 #endif
@@ -172,10 +160,6 @@ uint32_t uartAvailable(uint8_t ch)
 
     case _DEF_UART2:
       #ifdef _USE_UART2
-      if (is_rx_dma_open[ch] != true || hdma_usart2_rx.Instance == NULL)
-      {
-        break;
-      }
       qbuffer[ch].in = (qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR);
       ret = qbufferAvailable(&qbuffer[ch]);
       #endif

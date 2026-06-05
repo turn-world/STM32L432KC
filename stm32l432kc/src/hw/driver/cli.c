@@ -111,6 +111,8 @@ void cliMemoryDump(cli_args_t *args);
 
 bool cliInit(void)
 {
+  memset(&cli_node, 0, sizeof(cli_node));
+
   cli_node.is_open = false;
   cli_node.is_log  = false;
   cli_node.state   = CLI_RX_IDLE;
@@ -692,6 +694,11 @@ bool cliAdd(const char *cmd_str, void (*p_func)(cli_args_t *))
   cli_t *p_cli = &cli_node;
   uint16_t index;
 
+  if (cmd_str == NULL || p_func == NULL)
+  {
+    return false;
+  }
+
   if (p_cli->cmd_count >= CLI_CMD_LIST_MAX)
   {
     return false;
@@ -699,7 +706,8 @@ bool cliAdd(const char *cmd_str, void (*p_func)(cli_args_t *))
 
   index = p_cli->cmd_count;
 
-  strcpy(p_cli->cmd_list[index].cmd_str, cmd_str);
+  strncpy(p_cli->cmd_list[index].cmd_str, cmd_str, CLI_CMD_NAME_MAX - 1);
+  p_cli->cmd_list[index].cmd_str[CLI_CMD_NAME_MAX - 1] = 0;
   p_cli->cmd_list[index].cmd_func = p_func;
 
   cliToUpper(p_cli->cmd_list[index].cmd_str);

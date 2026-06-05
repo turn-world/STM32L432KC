@@ -14,6 +14,7 @@
 
 #define _USE_UART1
 static bool is_open[UART_MAX_CH];
+static bool is_rx_dma_open[UART_MAX_CH];
 
 #ifdef _USE_UART1
 static qbuffer_t qbuffer[UART_MAX_CH];
@@ -38,6 +39,7 @@ bool uartInit(void)
   for (int i=0; i<UART_MAX_CH; i++)
   {
     is_open[i] = false;
+    is_rx_dma_open[i] = false;
   }
 
 
@@ -64,7 +66,11 @@ bool uartOpen(uint8_t ch, uint32_t baud)
     	  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
     	  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 
-          HAL_UART_DeInit(&huart2);
+          if (is_open[ch] == true)
+          {
+            HAL_UART_DeInit(&huart2);
+          }
+          is_rx_dma_open[ch] = false;
 
           qbufferCreate(&qbuffer[ch], &rx_buf[0], 256);
 
@@ -80,14 +86,16 @@ bool uartOpen(uint8_t ch, uint32_t baud)
     {
       ret = true;
       is_open[ch] = true;
+      qbuffer[ch].in  = 0;
+      qbuffer[ch].out = 0;
 
-      if(HAL_UART_Receive_DMA(&huart2, (uint8_t *)&rx_buf[0], 256) != HAL_OK)
+      if(HAL_UART_Receive_DMA(&huart2, (uint8_t *)&rx_buf[0], 256) == HAL_OK &&
+         hdma_usart2_rx.Instance != NULL)
       {
-        ret = false;
+        is_rx_dma_open[ch] = true;
+        qbuffer[ch].in  = qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR;
+        qbuffer[ch].out = qbuffer[ch].in;
       }
-
-      qbuffer[ch].in  = qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR;
-      qbuffer[ch].out = qbuffer[ch].in;
     }
 #endif
     break;
@@ -106,7 +114,11 @@ bool uartOpen(uint8_t ch, uint32_t baud)
     	  huart2.Init.OneBitSampling 			= UART_ONE_BIT_SAMPLE_DISABLE;
     	  huart2.AdvancedInit.AdvFeatureInit 	= UART_ADVFEATURE_NO_INIT;
 
-      HAL_UART_DeInit(&huart2);
+      if (is_open[ch] == true)
+      {
+        HAL_UART_DeInit(&huart2);
+      }
+      is_rx_dma_open[ch] = false;
 
       qbufferCreate(&qbuffer[ch], &rx_buf[0], 256);
 
@@ -123,14 +135,16 @@ bool uartOpen(uint8_t ch, uint32_t baud)
       {
         ret = true;
         is_open[ch] = true;
+        qbuffer[ch].in  = 0;
+        qbuffer[ch].out = 0;
 
-        if(HAL_UART_Receive_DMA(&huart2, (uint8_t *)&rx_buf[0], 256) != HAL_OK)
+        if(HAL_UART_Receive_DMA(&huart2, (uint8_t *)&rx_buf[0], 256) == HAL_OK &&
+           hdma_usart2_rx.Instance != NULL)
         {
-          ret = false;
+          is_rx_dma_open[ch] = true;
+          qbuffer[ch].in  = qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR;
+          qbuffer[ch].out = qbuffer[ch].in;
         }
-
-        qbuffer[ch].in  = qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR;
-        qbuffer[ch].out = qbuffer[ch].in;
       }
       #endif
       break;
@@ -147,6 +161,10 @@ uint32_t uartAvailable(uint8_t ch)
   {
     case _DEF_UART1:
 #ifdef _USE_UART1
+      if (is_rx_dma_open[ch] != true || hdma_usart2_rx.Instance == NULL)
+      {
+        break;
+      }
         qbuffer[ch].in = (qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR);
         ret = qbufferAvailable(&qbuffer[ch]);
 #endif
@@ -154,6 +172,10 @@ uint32_t uartAvailable(uint8_t ch)
 
     case _DEF_UART2:
       #ifdef _USE_UART2
+      if (is_rx_dma_open[ch] != true || hdma_usart2_rx.Instance == NULL)
+      {
+        break;
+      }
       qbuffer[ch].in = (qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR);
       ret = qbufferAvailable(&qbuffer[ch]);
       #endif
@@ -366,7 +388,10 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 	    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2|GPIO_PIN_15);
 
 	    /* USART2 DMA DeInit */
-	    HAL_DMA_DeInit(uartHandle->hdmarx);
+	    if (uartHandle->hdmarx != NULL)
+	    {
+	      HAL_DMA_DeInit(uartHandle->hdmarx);
+	    }
 
 	    /* USART2 interrupt Deinit */
 	    HAL_NVIC_DisableIRQ(USART2_IRQn);
@@ -480,7 +505,10 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 	    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2|GPIO_PIN_3);
 
 	    /* USART2 DMA DeInit */
-	    HAL_DMA_DeInit(uartHandle->hdmarx);
+	    if (uartHandle->hdmarx != NULL)
+	    {
+	      HAL_DMA_DeInit(uartHandle->hdmarx);
+	    }
 
     /* USART1 interrupt Deinit */
     HAL_NVIC_DisableIRQ(USART2_IRQn);

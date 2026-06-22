@@ -66,7 +66,13 @@ typedef struct
 void appsInit(apps_state_t *p_state, const apps_config_t *p_cfg);
 void appsClearFault(apps_state_t *p_state);
 apps_result_t appsUpdate(apps_state_t *p_state, uint16_t raw_ch1, uint16_t raw_ch2);
-int16_t appsPedalToBamocarTorque(uint16_t pedal_per_mille, int16_t max_torque_cmd);
+/* Torque calculation is intentionally disabled in apps_plausibility.c. */
+bool appsSendBamocarCommand(const apps_result_t *p_result, int16_t prepared_command);
+apps_result_t appsUpdateAndSend(apps_state_t *p_state,
+                                uint16_t raw_ch1,
+                                uint16_t raw_ch2,
+                                int16_t prepared_command);
+bool appsCliInit(void);
 
 #ifdef __cplusplus
 }

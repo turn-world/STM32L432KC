@@ -14,10 +14,12 @@
 
 #define _USE_UART1
 static bool is_open[UART_MAX_CH];
+static bool is_rx_open[UART_MAX_CH];
 
 #ifdef _USE_UART1
 static qbuffer_t qbuffer[UART_MAX_CH];
 static uint8_t rx_buf[256];
+static uint8_t rx_data[UART_MAX_CH];
 
 UART_HandleTypeDef huart2;
 DMA_HandleTypeDef  hdma_usart2_rx;
@@ -38,6 +40,7 @@ bool uartInit(void)
   for (int i=0; i<UART_MAX_CH; i++)
   {
     is_open[i] = false;
+    is_rx_open[i] = false;
   }
 
 
@@ -68,12 +71,9 @@ bool uartOpen(uint8_t ch, uint32_t baud)
           {
             HAL_UART_DeInit(&huart2);
           }
+          is_rx_open[ch] = false;
 
           qbufferCreate(&qbuffer[ch], &rx_buf[0], 256);
-
-          __HAL_RCC_DMA1_CLK_ENABLE();
-          HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);
-          HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
 
     if (HAL_UART_Init(&huart2) != HAL_OK)
     {
@@ -83,14 +83,18 @@ bool uartOpen(uint8_t ch, uint32_t baud)
     {
       ret = true;
       is_open[ch] = true;
+      qbuffer[ch].in  = 0;
+      qbuffer[ch].out = 0;
 
-      if(HAL_UART_Receive_DMA(&huart2, (uint8_t *)&rx_buf[0], 256) != HAL_OK)
+      if (HAL_UART_Receive_IT(&huart2, &rx_data[ch], 1) == HAL_OK)
+      {
+        is_rx_open[ch] = true;
+      }
+      else
       {
         ret = false;
+        is_open[ch] = false;
       }
-
-      qbuffer[ch].in  = qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR;
-      qbuffer[ch].out = qbuffer[ch].in;
     }
 #endif
     break;
@@ -113,13 +117,9 @@ bool uartOpen(uint8_t ch, uint32_t baud)
       {
         HAL_UART_DeInit(&huart2);
       }
+      is_rx_open[ch] = false;
 
       qbufferCreate(&qbuffer[ch], &rx_buf[0], 256);
-
-      __HAL_RCC_DMA1_CLK_ENABLE();
-      HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);
-      HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
-
 
       if (HAL_UART_Init(&huart2) != HAL_OK)
       {
@@ -129,14 +129,18 @@ bool uartOpen(uint8_t ch, uint32_t baud)
       {
         ret = true;
         is_open[ch] = true;
+        qbuffer[ch].in  = 0;
+        qbuffer[ch].out = 0;
 
-        if(HAL_UART_Receive_DMA(&huart2, (uint8_t *)&rx_buf[0], 256) != HAL_OK)
+        if (HAL_UART_Receive_IT(&huart2, &rx_data[ch], 1) == HAL_OK)
+        {
+          is_rx_open[ch] = true;
+        }
+        else
         {
           ret = false;
+          is_open[ch] = false;
         }
-
-        qbuffer[ch].in  = qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR;
-        qbuffer[ch].out = qbuffer[ch].in;
       }
       #endif
       break;
@@ -153,14 +157,30 @@ uint32_t uartAvailable(uint8_t ch)
   {
     case _DEF_UART1:
 #ifdef _USE_UART1
-        qbuffer[ch].in = (qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR);
+        if ((is_open[ch] == true) &&
+            (is_rx_open[ch] != true) &&
+            (huart2.RxState == HAL_UART_STATE_READY))
+        {
+          if (HAL_UART_Receive_IT(&huart2, &rx_data[ch], 1) == HAL_OK)
+          {
+            is_rx_open[ch] = true;
+          }
+        }
         ret = qbufferAvailable(&qbuffer[ch]);
 #endif
       break;
 
     case _DEF_UART2:
       #ifdef _USE_UART2
-      qbuffer[ch].in = (qbuffer[ch].len - hdma_usart2_rx.Instance->CNDTR);
+      if ((is_open[ch] == true) &&
+          (is_rx_open[ch] != true) &&
+          (huart2.RxState == HAL_UART_STATE_READY))
+      {
+        if (HAL_UART_Receive_IT(&huart2, &rx_data[ch], 1) == HAL_OK)
+        {
+          is_rx_open[ch] = true;
+        }
+      }
       ret = qbufferAvailable(&qbuffer[ch]);
       #endif
       break;
@@ -269,19 +289,36 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
   if (huart->Instance == USART2)
   {
+    is_rx_open[_DEF_UART1] = false;
+
+    __HAL_UART_CLEAR_FLAG(huart,
+                          UART_CLEAR_OREF |
+                          UART_CLEAR_NEF  |
+                          UART_CLEAR_FEF  |
+                          UART_CLEAR_PEF);
+
+    if (huart->RxState == HAL_UART_STATE_READY)
+    {
+      if (HAL_UART_Receive_IT(huart, &rx_data[_DEF_UART1], 1) == HAL_OK)
+      {
+        is_rx_open[_DEF_UART1] = true;
+      }
+    }
   }
 }
 
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
-#if 0
-  if (huart->Instance == USART1)
+  if (huart->Instance == USART2)
   {
-    qbufferWrite(&qbuffer[_DEF_UART2], &rx_data[_DEF_UART2], 1);
+    is_rx_open[_DEF_UART1] = false;
+    (void)qbufferWrite(&qbuffer[_DEF_UART1], &rx_data[_DEF_UART1], 1);
 
-    HAL_UART_Receive_IT(&huart1, (uint8_t *)&rx_data[_DEF_UART2], 1);
+    if (HAL_UART_Receive_IT(huart, &rx_data[_DEF_UART1], 1) == HAL_OK)
+    {
+      is_rx_open[_DEF_UART1] = true;
+    }
   }
-#endif
 }
 
 void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
@@ -326,26 +363,8 @@ void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)
 	    GPIO_InitStruct.Alternate = GPIO_AF3_USART2;
 	    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-	    /* USART2 DMA Init */
-	    /* USART2_RX Init */
-	    hdma_usart2_rx.Instance = DMA1_Channel6;
-	    hdma_usart2_rx.Init.Request = DMA_REQUEST_2;
-	    hdma_usart2_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
-	    hdma_usart2_rx.Init.PeriphInc = DMA_PINC_DISABLE;
-	    hdma_usart2_rx.Init.MemInc = DMA_MINC_ENABLE;
-	    hdma_usart2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-	    hdma_usart2_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
-	    hdma_usart2_rx.Init.Mode = DMA_CIRCULAR;
-	    hdma_usart2_rx.Init.Priority = DMA_PRIORITY_LOW;
-	    if (HAL_DMA_Init(&hdma_usart2_rx) != HAL_OK)
-	    {
-	      Error_Handler();
-	    }
-
-	    __HAL_LINKDMA(uartHandle,hdmarx,hdma_usart2_rx);
-
 	    /* USART2 interrupt Init */
-	    HAL_NVIC_SetPriority(USART2_IRQn, 0, 0);
+	    HAL_NVIC_SetPriority(USART2_IRQn, 5, 0);
 	    HAL_NVIC_EnableIRQ(USART2_IRQn);
 	  /* USER CODE BEGIN USART2_MspInit 1 */
 
@@ -370,12 +389,6 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)
 	    PA15 (JTDI)     ------> USART2_RX
 	    */
 	    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2|GPIO_PIN_15);
-
-	    /* USART2 DMA DeInit */
-	    if (uartHandle->hdmarx != NULL)
-	    {
-	      HAL_DMA_DeInit(uartHandle->hdmarx);
-	    }
 
 	    /* USART2 interrupt Deinit */
 	    HAL_NVIC_DisableIRQ(USART2_IRQn);

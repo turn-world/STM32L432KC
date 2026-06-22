@@ -19,9 +19,11 @@
 #include "cli.h"
 #include "gpio.h"
 #include "can.h"
+#include "adc.h"
 #include "tim.h"
 #include "tim_gpio.h"
 #include "DM542/dm542.h"
+#include "APPS/apps_plausibility.h"
 
 void hwInit(void);
 

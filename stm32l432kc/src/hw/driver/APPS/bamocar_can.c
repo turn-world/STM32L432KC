@@ -3,6 +3,7 @@
  */
 
 #include "APPS/bamocar_can.h"
+#include "can.h"
 
 void bamocarCanMakeReg16(uint32_t rx_id, uint8_t reg_id, int16_t value, bamocar_can_frame_t *p_frame)
 {
@@ -37,4 +38,26 @@ void bamocarCanMakeReadRequest(uint32_t rx_id, uint8_t reg_id, uint8_t interval_
   p_frame->data[5] = 0;
   p_frame->data[6] = 0;
   p_frame->data[7] = 0;
+}
+
+bool bamocarCanSendTorqueCmd(uint8_t can_ch, int16_t torque_cmd)
+{
+  bamocar_can_frame_t frame;
+  can_msg_t msg;
+
+  if (canIsOpen(can_ch) != true)
+  {
+    return false;
+  }
+
+  bamocarCanMakeTorqueCmd(BAMOCAR_CAN_DEFAULT_RX_ID, torque_cmd, &frame);
+
+  canMsgInit(&msg, CAN_CLASSIC, CAN_STD, CAN_DLC_3);
+  msg.id = frame.id;
+  msg.data[0] = frame.data[0];
+  msg.data[1] = frame.data[1];
+  msg.data[2] = frame.data[2];
+
+  /* Usually returns immediately; waits at most 1 ms if all mailboxes are busy. */
+  return canMsgWrite(can_ch, &msg, 1U);
 }

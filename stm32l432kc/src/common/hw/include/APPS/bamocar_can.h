@@ -11,6 +11,7 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
 #include <stdint.h>
 
 #define BAMOCAR_CAN_DEFAULT_RX_ID      0x201U
@@ -31,6 +32,7 @@ typedef struct
 void bamocarCanMakeReg16(uint32_t rx_id, uint8_t reg_id, int16_t value, bamocar_can_frame_t *p_frame);
 void bamocarCanMakeTorqueCmd(uint32_t rx_id, int16_t torque_cmd, bamocar_can_frame_t *p_frame);
 void bamocarCanMakeReadRequest(uint32_t rx_id, uint8_t reg_id, uint8_t interval_ms, bamocar_can_frame_t *p_frame);
+bool bamocarCanSendTorqueCmd(uint8_t can_ch, int16_t torque_cmd);
 
 #ifdef __cplusplus
 }

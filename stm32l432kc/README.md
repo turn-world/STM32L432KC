@@ -69,6 +69,73 @@ STM32의 CAN RX/TX 핀은 CAN bus가 아니라 로직 신호입니다. 반드시
 
 Bamocar CAN manual 기준으로 master -> controller frame은 byte 0이 register ID, byte 1부터 little-endian data입니다. Torque command register는 `0x90`이고, 100% command는 `32767` 기준입니다. 예를 들어 50% torque는 `16380 = 0x3FFC`라서 payload가 `{0x90, 0xFC, 0x3F}`가 됩니다.
 
+## CLI가 출력되지 않았던 원인과 복구 방법
+
+### 최종 원인
+
+CLI와 UART 코드가 실행되지 않은 직접 원인은 ADC 추가가 아니라 MCU의 부팅 모드였습니다.
+
+STM32가 사용자 Flash의 `Reset_Handler`가 아닌 시스템 부트로더 영역에서 실행되고 있었습니다.
+
+```text
+정상 실행 주소: 0x0800xxxx (Main Flash)
+문제 발생 주소: 0x1FFFxxxx (System Memory Bootloader)
+```
+
+당시 옵션 바이트는 `nSWBOOT0=1`이어서 BOOT0 값을 물리 핀에서 읽도록 되어 있었습니다. BOOT0 핀이 High로 인식되면서 시스템 부트로더로 진입했고, 그 결과 다음 현상이 발생했습니다.
+
+- `main()`이 실행되지 않음
+- `hwInit()`, `apInit()`이 실행되지 않음
+- USART2 레지스터가 초기화되지 않음
+- Tera Term에 `cli#` 프롬프트가 출력되지 않음
+- 새 펌웨어를 정상적으로 Flash에 기록해도 애플리케이션이 시작되지 않음
+
+ADC 설정을 추가한 시점과 증상 발생 시점이 겹쳤지만, ADC 변환이나 ADC 핀 자체가 CLI를 막은 것은 아니었습니다.
+
+### 적용한 복구 설정
+
+BOOT0 물리 핀 상태를 사용하지 않고 Main Flash로 부팅하도록 옵션 바이트를 변경했습니다.
+
+```text
+nSWBOOT0 = 0  // BOOT0 값을 옵션 바이트에서 선택
+nBOOT0   = 1  // BOOT0 = 0, Main Flash 부팅
+```
+
+STM32CubeProgrammer CLI 명령:
+
+```powershell
+STM32_Programmer_CLI.exe -c port=SWD -ob nSWBOOT0=0 nBOOT0=1
+STM32_Programmer_CLI.exe -c port=SWD -rst
+```
+
+설정 후 PC가 `0x0800xxxx` 영역에서 실행되는지 확인합니다.
+
+```powershell
+STM32_Programmer_CLI.exe -c port=SWD -score -coreReg PC LR MSP
+```
+
+### CLI 점검 순서
+
+1. Tera Term에서 ST-Link Virtual COM Port 선택
+2. `57600 baud`, `8 data bits`, `none parity`, `1 stop bit`, `flow control none`
+3. 최신 `Debug/stm32l432kc.elf`를 Flash에 기록
+4. PC가 `0x0800xxxx`에서 실행되는지 확인
+5. Tera Term에서 Enter 입력
+
+PC가 `0x1FFFxxxx`이면 UART 코드를 수정하기 전에 BOOT0/옵션 바이트부터 확인해야 합니다.
+
+### UART 관련 참고
+
+CLI 프롬프트가 출력되지만 입력이 동작하지 않는다면 그때는 UART RX 경로를 확인합니다.
+
+- `PA2`: USART2 TX
+- `PA15`: USART2 RX
+- USART2 IRQ가 활성화되어 있는지 확인
+- `HAL_UART_Receive_IT()` 또는 RX DMA 시작 결과 확인
+- `USART2_IRQHandler()`에서 `HAL_UART_IRQHandler(&huart2)` 호출 확인
+
+프롬프트 자체가 전혀 출력되지 않는 경우에는 UART RX보다 애플리케이션 부팅 여부를 먼저 확인하는 것이 빠릅니다.
+
 프로젝트의 기존 `can_msg_t`로 보내는 모양은 아래처럼 잡으면 됩니다.
 
 ```c

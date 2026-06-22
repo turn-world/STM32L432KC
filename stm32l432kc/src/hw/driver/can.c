@@ -3,6 +3,11 @@
  *
  *  Created on: May 5, 2026
  *      Author: TEMP
+ *
+ *      CAN ID
+ *      DLC
+ *      DATA
+ *      STD / EXT
  */
 
 #include "can.h"
@@ -53,15 +58,8 @@ const can_baud_cfg_t *p_baud_data   = can_baud_cfg_80m_data;
 
 const uint32_t dlc_len_tbl[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 12, 16, 20, 24, 32, 48, 64};
 
-const uint32_t dlc_tbl[] =     {0, 1, 2, 3, 4, 5, 6, 7, 8,
-      8,
-      8,
-      8,
-      8,
-      8,
-      8,
-      8
-    };
+const uint32_t dlc_tbl[] = {0, 1, 2, 3, 4, 5, 6, 7, 8,
+      8, 8, 8, 8, 8, 8, 8 };
 
 static const uint32_t mode_tbl[] =
 {
@@ -127,7 +125,6 @@ bool canInit(void)
 
   uint8_t i;
 
-
   for(i = 0; i < CAN_MAX_CH; i++)
   {
     can_tbl[i].is_init  = true;
@@ -172,12 +169,9 @@ bool canOpen(uint8_t ch, CanMode_t mode, CanFrame_t frame, CanBaud_t baud, CanBa
   bool ret = true;
   CAN_HandleTypeDef  *p_can;
 
-
   if (ch >= CAN_MAX_CH) return false;
 
-
   p_can = can_tbl[ch].h_can;
-
 
   switch(ch)
   {
@@ -963,7 +957,11 @@ void cliCan(cli_args_t *args)
 
     ch = constrain(args->getData(2), 0, CAN_MAX_CH - 1);
 
-    can_ret = canOpen(ch, CAN_NORMAL, CAN_CLASSIC, CAN_1M, CAN_1M);
+    can_ret = canOpen(ch,
+                      CAN_NORMAL,
+                      CAN_CLASSIC,
+                      CAN_500K,
+                      CAN_500K);
     cliPrintf("canOpen() : %s\n", can_ret ? "True":"False");
     canInfoPrint(ch);
     ret = true;

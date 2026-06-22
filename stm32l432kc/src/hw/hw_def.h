@@ -38,4 +38,7 @@
 #define      HW_CAN_MAX_CH          1
 #define      HW_CAN_MSG_RX_BUF_MAX  32
 
+#define _USE_HW_ADC
+#define      HW_ADC_MAX_CH          2
+
 #endif /* SRC_HW_HW_DEF_H_ */

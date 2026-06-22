@@ -19,6 +19,8 @@ void hwInit(void)
   gpioInit();
   canInit();
   adcInit();
+  appsInit(APPS_SIGNAL1_ADC, APPS_SIGNAL2_ADC, _DEF_CAN1);
+  appsCliInit();
 
   /*
    * Enable this block when CAN1 should start automatically at boot.

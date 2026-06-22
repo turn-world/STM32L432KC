@@ -8,11 +8,7 @@
 #ifndef SRC_HW_HW_H_
 #define SRC_HW_HW_H_
 
-
-#include <pwm.h>
-#include <pwm.h>
 #include "hw_def.h"
-
 
 #include "led.h"
 #include "uart.h"
@@ -20,10 +16,8 @@
 #include "gpio.h"
 #include "can.h"
 #include "adc.h"
-#include "tim.h"
-#include "tim_gpio.h"
-#include "DM542/dm542.h"
-#include "APPS/apps_plausibility.h"
+#include "APPS/apps.h"
+#include "APPS/apps_cli.h"
 
 void hwInit(void);
 

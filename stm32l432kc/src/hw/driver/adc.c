@@ -258,6 +258,24 @@ float adcConvVoltage(uint8_t ch, uint32_t adc_value)
          (float)ADC_12BIT_FULL_SCALE;
 }
 
+uint32_t adcReadMillivolts(uint8_t ch)
+{
+  return adcConvMillivolts(ch, (uint32_t)adcRead(ch));
+}
+
+uint32_t adcConvMillivolts(uint8_t ch, uint32_t adc_value)
+{
+  (void)ch;
+
+  if (adc_value > ADC_12BIT_FULL_SCALE)
+  {
+    adc_value = ADC_12BIT_FULL_SCALE;
+  }
+
+  return ((adc_value * 3300U) + (ADC_12BIT_FULL_SCALE / 2U)) /
+         ADC_12BIT_FULL_SCALE;
+}
+
 bool adcReadApps(uint16_t *p_signal1_raw, uint16_t *p_signal2_raw)
 {
   if ((p_signal1_raw == NULL) || (p_signal2_raw == NULL))
@@ -285,8 +303,7 @@ static void cliAdcPrintChannel(uint8_t ch)
   uint32_t voltage_mv;
 
   raw = (uint32_t)adcRead(ch);
-  voltage_mv = ((raw * 3300U) + (ADC_12BIT_FULL_SCALE / 2U)) /
-               ADC_12BIT_FULL_SCALE;
+  voltage_mv = adcConvMillivolts(ch, raw);
 
   cliPrintf("%02d. %-19s %-20s : raw=%4d, voltage=%d.%03dV (%dmV)\n",
             ch,

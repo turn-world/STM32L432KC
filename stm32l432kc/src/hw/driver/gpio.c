@@ -22,7 +22,7 @@ typedef struct
 
 button_tbl_t gpio_tbl[GPIO_MAX_CH] =
 {
-
+    {GPIOA, GPIO_PIN_8, _DEF_OUTPUT , GPIO_PIN_SET, GPIO_PIN_RESET, _DEF_LOW},
 };
 
 #ifdef _USE_HW_CLI

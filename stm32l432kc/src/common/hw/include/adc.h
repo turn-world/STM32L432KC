@@ -38,6 +38,8 @@ uint8_t adcGetRes(uint8_t ch);
 
 float adcReadVoltage(uint8_t ch);
 float adcConvVoltage(uint8_t ch, uint32_t adc_value);
+uint32_t adcReadMillivolts(uint8_t ch);
+uint32_t adcConvMillivolts(uint8_t ch, uint32_t adc_value);
 
 bool adcReadApps(uint16_t *p_signal1_raw, uint16_t *p_signal2_raw);
 

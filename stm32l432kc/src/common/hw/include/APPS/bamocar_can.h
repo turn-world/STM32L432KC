@@ -29,10 +29,15 @@ typedef struct
   uint8_t data[8];
 } bamocar_can_frame_t;
 
-void bamocarCanMakeReg16(uint32_t rx_id, uint8_t reg_id, int16_t value, bamocar_can_frame_t *p_frame);
-void bamocarCanMakeTorqueCmd(uint32_t rx_id, int16_t torque_cmd, bamocar_can_frame_t *p_frame);
-void bamocarCanMakeReadRequest(uint32_t rx_id, uint8_t reg_id, uint8_t interval_ms, bamocar_can_frame_t *p_frame);
-bool bamocarCanSendTorqueCmd(uint8_t can_ch, int16_t torque_cmd);
+void bamocarCanMakeReg16(uint32_t rx_id, uint8_t reg_id, int16_t value,
+                         bamocar_can_frame_t *p_frame);  // 16-bit register write frame 생성
+void bamocarCanMakeTorqueCmd(uint32_t rx_id, int16_t torque_cmd,
+                            bamocar_can_frame_t *p_frame); // torque register frame 생성
+void bamocarCanMakeReadRequest(uint32_t rx_id, uint8_t reg_id,
+                              uint8_t interval_ms,
+                              bamocar_can_frame_t *p_frame); // 주기 전송 요청 frame 생성
+bool bamocarCanSendTorqueCmd(uint8_t can_ch,
+                            int16_t torque_cmd);            // torque command 즉시 전송
 
 #ifdef __cplusplus
 }

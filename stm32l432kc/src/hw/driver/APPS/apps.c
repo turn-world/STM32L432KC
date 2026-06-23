@@ -3,12 +3,9 @@
  */
 
 #include "APPS/apps.h"
+#include "APPS/apps_cli.h"
 #include "APPS/bamocar_can.h"
 #include "adc.h"
-#include "bsp.h"
-
-#include <string.h>
-
 
 #define APPS_TIMED_FAULT_MASK  (APPS_STATUS_ADC_READ_FAULT      | \
                                 APPS_STATUS_SIGNAL1_RANGE_FAULT | \
@@ -258,6 +255,8 @@ bool appsInit(uint8_t signal1_adc_ch,
               uint8_t signal2_adc_ch,
               uint8_t can_ch)
 {
+  bool ret;
+
   memset(&apps_config, 0, sizeof(apps_config));
   memset(&apps_result, 0, sizeof(apps_result));
   appsResetFaultState();
@@ -272,7 +271,11 @@ bool appsInit(uint8_t signal1_adc_ch,
   apps_initialized = true;
   apps_result.status = APPS_STATUS_NOT_CONFIGURED;
 
-  return true;
+#ifdef _USE_HW_CLI
+  cli_result = appsCliInit();
+#endif
+  ret = true;
+  return ret;
 }
 
 bool appsSetConfig(uint16_t signal1_raw_min,
@@ -338,10 +341,7 @@ bool appsUpdate(void)
   int32_t raw_signal1;
   int32_t raw_signal2;
 
-  if (apps_initialized != true)
-  {
-    return false;
-  }
+  if (apps_initialized != true)   return false;
 
   if (adcUpdate() != true)
   {
@@ -357,6 +357,7 @@ bool appsUpdate(void)
     apps_result.command_sent = 0;
     apps_result.can_tx_ok = false;
     appsUpdateFaultTimer(status);
+
     return false;
   }
 

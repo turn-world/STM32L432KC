@@ -16,6 +16,9 @@
 #define APPS_CLI_PRINT_PERIOD_MS        100U
 
 
+static bool apps_cli_initialized = false;
+
+
 static uint16_t appsCliGetU16(cli_args_t *args, uint8_t index)
 {
   int32_t value = args->getData(index);
@@ -205,7 +208,14 @@ static void cliApps(cli_args_t *args)
 
 bool appsCliInit(void)
 {
-  return cliAdd("apps", cliApps);
+  if (apps_cli_initialized == true)
+  {
+    return true;
+  }
+
+  apps_cli_initialized = cliAdd("apps", cliApps);
+
+  return apps_cli_initialized;
 }
 
 #else

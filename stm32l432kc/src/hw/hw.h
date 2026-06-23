@@ -17,7 +17,6 @@
 #include "can.h"
 #include "adc.h"
 #include "APPS/apps.h"
-#include "APPS/apps_cli.h"
 
 void hwInit(void);
 

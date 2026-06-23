@@ -5,12 +5,9 @@
  */
 
 #include "adc.h"
-
-
-#ifdef _USE_HW_ADC
-
 #include "cli.h"
 
+#ifdef _USE_HW_ADC
 
 #define NAME_DEF(x)                  x, #x
 #define ADC_POLL_TIMEOUT_MS          1U

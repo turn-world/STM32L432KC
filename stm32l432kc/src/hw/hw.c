@@ -13,14 +13,20 @@ void hwInit(void)
 {
   bspInit();
 
+#ifdef _USE_HW_CLI
   cliInit();
+#endif
+
   ledInit();
+
+#ifdef _USE_HW_UART
   uartInit();
+#endif
+
   gpioInit();
   canInit();
   adcInit();
   appsInit(APPS_SIGNAL1_ADC, APPS_SIGNAL2_ADC, _DEF_CAN1);
-  appsCliInit();
 
   /*
    * Enable this block when CAN1 should start automatically at boot.

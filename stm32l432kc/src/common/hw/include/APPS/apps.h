@@ -12,12 +12,15 @@ extern "C" {
 #endif
 
 #include "hw_def.h"
+#include "adc.h"
 
 
 #define APPS_SIGNAL_COUNT                 2U
 #define APPS_PER_MILLE_MAX                1000U
 #define APPS_DEFAULT_DIFF_PER_MILLE       100U
 #define APPS_DEFAULT_FAULT_CONFIRM_MS     100U
+#define APPS_SIGNAL1_ADC_CH               ADC_CH_0
+#define APPS_SIGNAL2_ADC_CH               ADC_CH_1
 
 
 typedef enum

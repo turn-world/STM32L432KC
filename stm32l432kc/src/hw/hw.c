@@ -29,9 +29,7 @@ void hwInit(void)
 
 #ifdef _USE_HW_FATFS
   fatfsInit();
-  dataLoggerInit();
 #endif
 
   adcInit();
-  appsInit(APPS_SIGNAL1_ADC_CH, APPS_SIGNAL2_ADC_CH, _DEF_CAN1);
 }

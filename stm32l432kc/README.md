@@ -13,9 +13,9 @@
 
 ## 현재 넣어둔 파일
 
-- `src/common/hw/include/APPS/apps.h`, `apps.c`: APPS 구조체와 상태는 `apps.c` 내부 전역변수로 관리합니다. 외부에서는 채널, 보정값, torque command 같은 값만 함수 인자로 전달합니다.
-- `src/common/hw/include/APPS/apps_cli.h`, `apps_cli.c`: APPS CLI 출력과 런타임 보정 명령을 담당합니다.
-- `src/common/hw/include/APPS/bamocar_can.h`, `bamocar_can.c`: Bamocar D3의 16-bit register write/read request CAN payload를 만드는 작은 헬퍼입니다.
+- `src/ap/apps/apps.h`, `apps.c`: APPS 구조체와 상태는 `apps.c` 내부 전역변수로 관리합니다. 외부에서는 채널, 보정값, torque command 같은 값만 함수 인자로 전달합니다.
+- APPS CLI 출력과 런타임 보정 명령은 `apps.c` 안에서 같이 관리합니다.
+- `src/ap/apps/bamocar_can.h`, `bamocar_can.c`: Bamocar D3의 16-bit register write/read request CAN payload를 만드는 작은 헬퍼입니다.
 
 ## 먼저 확정해야 할 하드웨어
 
@@ -46,10 +46,8 @@
 ADC raw 보정은 실제 페달을 놓은 상태와 끝까지 밟은 상태에서 각 채널 raw를 기록해서 채웁니다.
 
 ```c
-appsInit(APPS_SIGNAL1_ADC, APPS_SIGNAL2_ADC, _DEF_CAN1);
+appsInit();
 appsSetConfig(520, 3540, 3480, 470);
-appsSetRangeMargins(80, 80, 80, 80);
-appsSetFaultLimits(100, 100);
 ```
 
 위 예시처럼 2번 채널이 반대 방향이면 `raw_min > raw_max`로 넣어도 됩니다.
@@ -150,7 +148,7 @@ appsRun(prepared_command);
 현재 기본 fault 확정 시간은 `100 ms`입니다.
 
 ```c
-#define APPS_DEFAULT_FAULT_CONFIRM_MS  100U
+#define APPS_FAULT_CONFIRM_MS  100U
 ```
 
 코드에서는 이상 상태가 처음 발견된 시간을 `started_ms`에 저장하고, 이후 `appsRun()` 또는 `appsUpdate()`가 호출될 때마다 현재까지의 지속시간을 계산합니다.
@@ -158,7 +156,7 @@ appsRun(prepared_command);
 ```c
 elapsed_ms = millis() - started_ms;
 
-if (elapsed_ms >= fault_confirm_ms)
+if (elapsed_ms >= APPS_FAULT_CONFIRM_MS)
 {
   fault_latched = true;
 }

@@ -7,6 +7,8 @@
 
 
 #include "ap.h"
+#include "apps/apps.h"
+#include "telemetry/telemetry.h"
 
 
 
@@ -15,6 +17,12 @@ void apInit(void)
 {
 #ifdef _USE_HW_CLI
   cliOpen(_DEF_UART1, 57600);
+#endif
+
+  appsInit();
+
+#ifdef _USE_HW_FATFS
+  telemetryInit();
 #endif
 }
 
@@ -35,7 +43,7 @@ void apMain(void)
     cliMain();
 #endif
 #ifdef _USE_HW_FATFS
-    dataLoggerUpdate();
+    telemetryUpdate();
 #endif
   }
 }

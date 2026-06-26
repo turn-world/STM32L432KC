@@ -16,9 +16,7 @@
 #include "gpio.h"
 #include "can.h"
 #include "fatfs.h"
-#include "data_logger.h"
 #include "adc.h"
-#include "APPS/apps.h"
 #include "spi.h"
 #include "rtc.h"
 

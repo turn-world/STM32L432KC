@@ -1,9 +1,12 @@
 /*
  * bamocar_can.c
+ *
+ * Bamocar CAN protocol helper.
+ * APPS decides the requested torque; this file only packs/sends Bamocar
+ * register frames over the existing CAN driver.
  */
 
-#include "APPS/bamocar_can.h"
-#include "can.h"
+#include "bamocar_can.h"
 
 void bamocarCanMakeReg16(uint32_t rx_id, uint8_t reg_id, int16_t value, bamocar_can_frame_t *p_frame)
 {

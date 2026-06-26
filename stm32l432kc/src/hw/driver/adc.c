@@ -34,6 +34,10 @@ static bool adcReadChannel(uint8_t ch, uint16_t *p_data);
 
 static ADC_HandleTypeDef hadc1;
 
+/*
+ * ADC driver는 APPS를 모른다.
+ * 보드의 ADC 입력만 ADC_CH_x로 제공하고, 어떤 기능이 어떤 ADC_CH를 쓸지는 상위 모듈에서 정한다.
+ */
 static adc_t adc_tbl[ADC_MAX_CH] =
 {
   {false, 0, ADC_CHANNEL_5},  /* ADC_CH_0: PA0 / ADC1_IN5 */
@@ -64,6 +68,10 @@ static bool adcOpen(void)
 {
   bool ret = true;
 
+  /*
+   * 단일 변환 모드로 열어두고, adcReadChannel()에서 필요한 채널을 매번 설정해 읽는다.
+   * 채널 수가 적어서 scan/DMA보다 구조가 단순하고 APPS 외 용도로도 재사용하기 쉽다.
+   */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV1;
   hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
@@ -134,6 +142,7 @@ static bool adcReadChannel(uint8_t ch, uint16_t *p_data)
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset       = 0;
 
+  /* 단일 변환 모드라서 읽을 때마다 대상 채널을 ADC_REGULAR_RANK_1에 다시 매핑한다. */
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     return false;
@@ -177,6 +186,7 @@ bool adcUpdate(void)
     }
   }
 
+  /* 모든 채널을 성공적으로 읽은 뒤에만 공개 data를 갱신한다. */
   for (int i = 0; i < ADC_MAX_CH; i++)
   {
     adc_tbl[i].data = data[i];
@@ -192,6 +202,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *p_hadc)
 
   if (p_hadc->Instance == ADC1)
   {
+    /* CubeMX가 생성한 ADC1 clock tree 설정과 맞춘다. */
     PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC;
     PeriphClkInit.AdcClockSelection = RCC_ADCCLKSOURCE_PLLSAI1;
     PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_MSI;

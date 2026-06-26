@@ -12,7 +12,6 @@
 void hwInit(void)
 {
   bspInit();
-
 #ifdef _USE_HW_CLI
   cliInit();
 #endif
@@ -25,16 +24,14 @@ void hwInit(void)
 
   gpioInit();
   canInit();
-  adcInit();
-  appsInit(APPS_SIGNAL1_ADC, APPS_SIGNAL2_ADC, _DEF_CAN1);
+  spiInit();
+  rtcInit();
 
-  /*
-   * Enable this block when CAN1 should start automatically at boot.
-   *
-   * canOpen(_DEF_CAN1,
-   *         CAN_NORMAL,
-   *         CAN_CLASSIC,
-   *         CAN_500K,
-   *         CAN_500K);
-   */
+#ifdef _USE_HW_FATFS
+  fatfsInit();
+  dataLoggerInit();
+#endif
+
+  adcInit();
+  appsInit(APPS_SIGNAL1_ADC_CH, APPS_SIGNAL2_ADC_CH, _DEF_CAN1);
 }

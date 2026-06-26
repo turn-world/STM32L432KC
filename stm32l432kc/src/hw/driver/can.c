@@ -145,6 +145,12 @@ bool canInit(void)
   hcan1.Instance = CAN1;
   can_tbl[_DEF_CAN1].h_can = &hcan1;
 
+  ret = canOpen(_DEF_CAN1,
+                CAN_NORMAL,
+                CAN_CLASSIC,
+                CAN_500K,
+                CAN_500K);
+
 // logPrintf("[OK] canInit()\n");
 
 #ifdef _USE_HW_CLI

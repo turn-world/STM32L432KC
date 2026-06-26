@@ -34,6 +34,9 @@ void apMain(void)
 #ifdef _USE_HW_CLI
     cliMain();
 #endif
+#ifdef _USE_HW_FATFS
+    dataLoggerUpdate();
+#endif
   }
 }
 

@@ -1,7 +1,7 @@
 /*
  * adc.h
  *
- * APPS ADC driver
+ * ADC driver
  */
 
 #ifndef SRC_COMMON_HW_INCLUDE_ADC_H_
@@ -20,9 +20,9 @@ extern "C" {
 
 typedef enum
 {
-  APPS_SIGNAL1_ADC = 0,
-  APPS_SIGNAL2_ADC,
-} AdcPinName_t;
+  ADC_CH_0 = 0,
+  ADC_CH_1,
+} adc_ch_t;
 
 
 bool adcInit(void);
@@ -40,8 +40,6 @@ float adcReadVoltage(uint8_t ch);
 float adcConvVoltage(uint8_t ch, uint32_t adc_value);
 uint32_t adcReadMillivolts(uint8_t ch);
 uint32_t adcConvMillivolts(uint8_t ch, uint32_t adc_value);
-
-bool adcReadApps(uint16_t *p_signal1_raw, uint16_t *p_signal2_raw);
 
 #endif
 

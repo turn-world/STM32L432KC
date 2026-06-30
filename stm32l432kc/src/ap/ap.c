@@ -8,6 +8,7 @@
 
 #include "ap.h"
 #include "apps/apps.h"
+#include "signal_scope/signal_scope.h"
 #include "telemetry/telemetry.h"
 
 
@@ -21,9 +22,9 @@ void apInit(void)
 
   appsInit();
 
-#ifdef _USE_HW_FATFS
+  scopeInit();
   telemetryInit();
-#endif
+
 }
 
 void apMain(void)
@@ -39,12 +40,15 @@ void apMain(void)
       pre_time = millis();
       ledToggle(_DEF_LED1);
     }
+
 #ifdef _USE_HW_CLI
     cliMain();
 #endif
-#ifdef _USE_HW_FATFS
+
+    /* scope start 명령으로 켜진 경우에만 CLI CSV 스트림을 출력한다. */
+    scopeUpdate();
+
     telemetryUpdate();
-#endif
   }
 }
 

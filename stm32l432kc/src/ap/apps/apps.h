@@ -19,8 +19,9 @@ extern "C" {
 #define APPS_SIGNAL_COUNT                  2U
 #define APPS_PER_MILLE_MAX                 1000U
 
-#define APPS_SIGNAL1_ADC_CH                ADC_CH_0
-#define APPS_SIGNAL2_ADC_CH                ADC_CH_1
+#define APPS_SIGNAL1_ADC_CH                _DEF_ADC1
+#define APPS_SIGNAL2_ADC_CH                _DEF_ADC2
+
 #define APPS_CAN_CH                        _DEF_CAN1
 
 #define APPS_SIGNAL1_RAW_MIN_DEFAULT       0U
@@ -60,31 +61,8 @@ bool appsSetConfig(uint16_t signal1_raw_min,
 void appsClearFault(void);
 
 bool appsUpdate(void);
-bool appsUpdateRaw(uint16_t raw_signal1, uint16_t raw_signal2);
 bool appsSendCommand(int16_t prepared_command);
 bool appsRun(int16_t prepared_command);
-
-bool appsIsInitialized(void);
-bool appsIsConfigured(void);
-bool appsIsValid(void);
-bool appsIsAdcOk(void);
-bool appsIsCanTxOk(void);
-bool appsIsFaultLatched(void);
-
-uint8_t  appsGetAdcChannel(uint8_t signal);
-uint8_t  appsGetCanChannel(void);
-uint16_t appsGetRawMin(uint8_t signal);
-uint16_t appsGetRawMax(uint8_t signal);
-uint16_t appsGetRaw(uint8_t signal);
-uint16_t appsGetVoltageMv(uint8_t signal);
-uint16_t appsGetPercentPerMille(uint8_t signal);
-uint16_t appsGetDifferencePerMille(void);
-uint16_t appsGetPedalPerMille(void);
-uint16_t appsGetMaxDifferencePerMille(void);
-uint32_t appsGetFaultConfirmMs(void);
-uint32_t appsGetFaultElapsedMs(void);
-uint32_t appsGetStatus(void);
-int16_t  appsGetCommandSent(void);
 
 
 #ifdef __cplusplus

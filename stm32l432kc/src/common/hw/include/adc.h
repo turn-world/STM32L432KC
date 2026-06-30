@@ -18,13 +18,6 @@ extern "C" {
 
 #define ADC_MAX_CH                  HW_ADC_MAX_CH
 
-typedef enum
-{
-  ADC_CH_0 = 0,
-  ADC_CH_1,
-} adc_ch_t;
-
-
 bool adcInit(void);
 bool adcIsInit(void);
 bool adcUpdate(void);

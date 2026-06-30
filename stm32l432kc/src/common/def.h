@@ -28,46 +28,51 @@
 #define _DEF_UART3          	2
 #define _DEF_UART4          	3
 
-#define	_DEF_SPI1				0
-#define	_DEF_SPI2				1
-#define	_DEF_SPI3				2
-#define	_DEF_SPI4				3
+#define	_DEF_SPI1				      0
+#define	_DEF_SPI2				      1
+#define	_DEF_SPI3				      2
+#define	_DEF_SPI4				      3
 
-#define _DEF_BUTTON1			0
-#define _DEF_BUTTON2			1
-#define _DEF_BUTTON3			2
-#define _DEF_BUTTON4			3
+#define _DEF_BUTTON1			    0
+#define _DEF_BUTTON2			    1
+#define _DEF_BUTTON3			    2
+#define _DEF_BUTTON4			    3
 
-#define _DEF_INPUT				0
-#define	_DEF_INPUT_PULLUP		1
-#define _DEF_INPUT_PULLDOWN		2
-#define	_DEF_OUTPUT				3
-#define _DEF_OUTPUT_PULLUP		4
-#define	_DEF_OUTPUT_PULLDOWN	5
-#define _DEF_OUTPUT_OPEN_DRAIN 6
+#define _DEF_INPUT				      0
+#define	_DEF_INPUT_PULLUP		    1
+#define _DEF_INPUT_PULLDOWN		  2
+#define	_DEF_OUTPUT				      3
+#define _DEF_OUTPUT_PULLUP		  4
+#define	_DEF_OUTPUT_PULLDOWN	  5
+#define _DEF_OUTPUT_OPEN_DRAIN  6
 
-#define	_DEF_LOW				0
-#define	_DEF_HIGH				1
+#define	_DEF_LOW				      0
+#define	_DEF_HIGH				      1
 
 #define _DEF_CAN1             0
 #define _DEF_CAN2             1
 #define _DEF_CAN3             2
 #define _DEF_CAN4             3
 
-#define _DEF_DM1        0
-#define _DEF_DM2        1
-#define _DEF_DM3        2
-#define _DEF_DM4        3
+#define _DEF_DM1              0
+#define _DEF_DM2              1
+#define _DEF_DM3              2
+#define _DEF_DM4              3
 
-#define _DEF_TIM1     0
-#define _DEF_TIM2     1
-#define _DEF_TIM3     2
-#define _DEF_TIM4     3
+#define _DEF_TIM1             0
+#define _DEF_TIM2             1
+#define _DEF_TIM3             2
+#define _DEF_TIM4             3
 
-#define _DEF_PWM1     0
-#define _DEF_PWM2     1
-#define _DEF_PWM3     2
-#define _DEF_PWM4     3
+#define _DEF_PWM1             0
+#define _DEF_PWM2             1
+#define _DEF_PWM3             2
+#define _DEF_PWM4             3
+
+#define _DEF_ADC1             0
+#define _DEF_ADC2             1
+#define _DEF_ADC3             2
+#define _DEF_ADC4             3
 
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 

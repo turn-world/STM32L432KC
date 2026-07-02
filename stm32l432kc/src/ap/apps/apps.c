@@ -55,6 +55,7 @@ static bool apps_calibrated = false;
 static bool apps_command_registered = false;
 
 static void appsCliCommand(cli_args_t *args);
+static void appsCliPrintInfo(void);
 #endif
 
 
@@ -172,8 +173,8 @@ static bool appsEvaluateRawPair(uint16_t raw_signal1, uint16_t raw_signal2)
   bool range_ok[APPS_SIGNAL_COUNT] = {false, false};
   uint32_t instant_status = APPS_STATUS_OK;
 
-  apps_result.raw[APPS_SIGNAL1] = raw_signal1;
-  apps_result.raw[APPS_SIGNAL2] = raw_signal2;
+  apps_result.raw[APPS_SIGNAL1] =               raw_signal1;
+  apps_result.raw[APPS_SIGNAL2] =               raw_signal2;
   apps_result.voltage_mv[APPS_SIGNAL1] =
       (uint16_t)adcConvMillivolts(APPS_SIGNAL1_ADC_CH, raw_signal1);
   apps_result.voltage_mv[APPS_SIGNAL2] =
@@ -226,15 +227,16 @@ static bool appsEvaluateRawPair(uint16_t raw_signal1, uint16_t raw_signal2)
     instant_status |= APPS_STATUS_DIFF_FAULT;
   }
 
+  apps_result.pedal_per_mille =
+      (uint16_t)(((uint32_t)apps_result.percent_per_mille[APPS_SIGNAL1] +
+                  (uint32_t)apps_result.percent_per_mille[APPS_SIGNAL2]) /
+                 APPS_SIGNAL_COUNT);
+
   appsUpdateFaultTimer(instant_status);
 
   if ((instant_status == APPS_STATUS_OK) &&
       (apps_fault.latched != true))
   {
-    apps_result.pedal_per_mille =
-        (uint16_t)(((uint32_t)apps_result.percent_per_mille[APPS_SIGNAL1] +
-                    (uint32_t)apps_result.percent_per_mille[APPS_SIGNAL2]) /
-                   APPS_SIGNAL_COUNT);
     apps_result.valid = true;
   }
 
@@ -363,75 +365,92 @@ bool appsRun(int16_t prepared_command)
 
 #ifdef _USE_HW_CLI
 
+static void appsCliPrintInfo(void)
+{
+  uint32_t status;
+  uint16_t signal1_voltage_mv;
+  uint16_t signal2_voltage_mv;
+
+  (void)appsUpdate();
+
+  signal1_voltage_mv = apps_result.voltage_mv[APPS_SIGNAL1];
+  signal2_voltage_mv = apps_result.voltage_mv[APPS_SIGNAL2];
+  status = apps_result.status;
+
+  cliPrintf("signal1 : raw=%u, %u.%03uV, %u.%u%%\n",
+            apps_result.raw[APPS_SIGNAL1],
+            signal1_voltage_mv / 1000U,
+            signal1_voltage_mv % 1000U,
+            apps_result.percent_per_mille[APPS_SIGNAL1] / 10U,
+            apps_result.percent_per_mille[APPS_SIGNAL1] % 10U);
+  cliPrintf("signal2 : raw=%u, %u.%03uV, %u.%u%%\n",
+            apps_result.raw[APPS_SIGNAL2],
+            signal2_voltage_mv / 1000U,
+            signal2_voltage_mv % 1000U,
+            apps_result.percent_per_mille[APPS_SIGNAL2] / 10U,
+            apps_result.percent_per_mille[APPS_SIGNAL2] % 10U);
+  cliPrintf("difference : %u.%u%%\n",
+            apps_result.difference_per_mille / 10U,
+            apps_result.difference_per_mille % 10U);
+  cliPrintf("pedal : %u.%u%%\n",
+            apps_result.pedal_per_mille / 10U,
+            apps_result.pedal_per_mille % 10U);
+  cliPrintf("valid : %s\n", apps_result.valid ? "true" : "false");
+  cliPrintf("fault timer : %lums / %lums\n",
+            (unsigned long)apps_fault.elapsed_ms,
+            (unsigned long)APPS_FAULT_CONFIRM_MS);
+  cliPrintf("status : 0x%08lX\n", (unsigned long)status);
+
+  if (status == APPS_STATUS_OK)
+  {
+    cliPrintf("  OK\n");
+  }
+  if ((status & APPS_STATUS_NOT_CONFIGURED) != 0U)
+  {
+    cliPrintf("  NOT_CONFIGURED\n");
+  }
+  if ((status & APPS_STATUS_ADC_READ_FAULT) != 0U)
+  {
+    cliPrintf("  ADC_READ_FAULT\n");
+  }
+  if ((status & APPS_STATUS_SIGNAL1_RANGE_FAULT) != 0U)
+  {
+    cliPrintf("  SIGNAL1_RANGE_FAULT\n");
+  }
+  if ((status & APPS_STATUS_SIGNAL2_RANGE_FAULT) != 0U)
+  {
+    cliPrintf("  SIGNAL2_RANGE_FAULT\n");
+  }
+  if ((status & APPS_STATUS_DIFF_FAULT) != 0U)
+  {
+    cliPrintf("  DIFF_FAULT\n");
+  }
+  if ((status & APPS_STATUS_FAULT_LATCHED) != 0U)
+  {
+    cliPrintf("  FAULT_LATCHED\n");
+  }
+  if ((status & APPS_STATUS_CAN_TX_FAULT) != 0U)
+  {
+    cliPrintf("  CAN_TX_FAULT\n");
+  }
+
+  cliPrintf("\n");
+}
+
 static void appsCliCommand(cli_args_t *args)
 {
   if ((args->argc == 1) && args->isStr(0, "info"))
   {
-    uint32_t status;
-    uint16_t signal1_voltage_mv;
-    uint16_t signal2_voltage_mv;
+    appsCliPrintInfo();
+    return;
+  }
 
-    (void)appsUpdate();
-
-    signal1_voltage_mv = apps_result.voltage_mv[APPS_SIGNAL1];
-    signal2_voltage_mv = apps_result.voltage_mv[APPS_SIGNAL2];
-    status = apps_result.status;
-
-    cliPrintf("signal1 : raw=%u, %u.%03uV, %u.%u%%\n",
-              apps_result.raw[APPS_SIGNAL1],
-              signal1_voltage_mv / 1000U,
-              signal1_voltage_mv % 1000U,
-              apps_result.percent_per_mille[APPS_SIGNAL1] / 10U,
-              apps_result.percent_per_mille[APPS_SIGNAL1] % 10U);
-    cliPrintf("signal2 : raw=%u, %u.%03uV, %u.%u%%\n",
-              apps_result.raw[APPS_SIGNAL2],
-              signal2_voltage_mv / 1000U,
-              signal2_voltage_mv % 1000U,
-              apps_result.percent_per_mille[APPS_SIGNAL2] / 10U,
-              apps_result.percent_per_mille[APPS_SIGNAL2] % 10U);
-    cliPrintf("difference : %u.%u%%\n",
-              apps_result.difference_per_mille / 10U,
-              apps_result.difference_per_mille % 10U);
-    cliPrintf("pedal : %u.%u%%\n",
-              apps_result.pedal_per_mille / 10U,
-              apps_result.pedal_per_mille % 10U);
-    cliPrintf("valid : %s\n", apps_result.valid ? "true" : "false");
-    cliPrintf("fault timer : %lums / %lums\n",
-              (unsigned long)apps_fault.elapsed_ms,
-              (unsigned long)APPS_FAULT_CONFIRM_MS);
-    cliPrintf("status : 0x%08lX\n", (unsigned long)status);
-
-    if (status == APPS_STATUS_OK)
+  if ((args->argc == 1) && args->isStr(0, "show"))
+  {
+    while (cliKeepLoop())
     {
-      cliPrintf("  OK\n");
-    }
-    if ((status & APPS_STATUS_NOT_CONFIGURED) != 0U)
-    {
-      cliPrintf("  NOT_CONFIGURED\n");
-    }
-    if ((status & APPS_STATUS_ADC_READ_FAULT) != 0U)
-    {
-      cliPrintf("  ADC_READ_FAULT\n");
-    }
-    if ((status & APPS_STATUS_SIGNAL1_RANGE_FAULT) != 0U)
-    {
-      cliPrintf("  SIGNAL1_RANGE_FAULT\n");
-    }
-    if ((status & APPS_STATUS_SIGNAL2_RANGE_FAULT) != 0U)
-    {
-      cliPrintf("  SIGNAL2_RANGE_FAULT\n");
-    }
-    if ((status & APPS_STATUS_DIFF_FAULT) != 0U)
-    {
-      cliPrintf("  DIFF_FAULT\n");
-    }
-    if ((status & APPS_STATUS_FAULT_LATCHED) != 0U)
-    {
-      cliPrintf("  FAULT_LATCHED\n");
-    }
-    if ((status & APPS_STATUS_CAN_TX_FAULT) != 0U)
-    {
-      cliPrintf("  CAN_TX_FAULT\n");
+      appsCliPrintInfo();
+      delay(100);
     }
 
     return;
@@ -506,6 +525,7 @@ static void appsCliCommand(cli_args_t *args)
   }
 
   cliPrintf("apps info\n");
+  cliPrintf("apps show\n");
   cliPrintf("apps config\n");
   cliPrintf("apps config signal1_min signal1_max signal2_min signal2_max\n");
   cliPrintf("apps clear\n");

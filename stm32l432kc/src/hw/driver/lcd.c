@@ -13,8 +13,9 @@
 #ifdef _USE_HW_LCD
 #include "gpio.h"
 #include "hangul/han.h"
-#ifdef _USE_HW_ST7735
-#include "lcd/st7735.h"
+
+#ifdef _USE_HW_ILI9488
+#include "lcd/ili9488.h"
 #endif
 
 
@@ -31,7 +32,8 @@
 
 
 #define LCD_OPT_DEF   __attribute__((optimize("O2")))
-#define _PIN_DEF_BL_CTL       1
+#define _PIN_DEF_BL_CTL       0
+#define LCD_STREAM_BUF_PIXELS 64U
 
 
 typedef struct
@@ -47,7 +49,6 @@ static lcd_driver_t lcd;
 static bool is_init = false;
 static volatile bool is_tx_done = true;
 static uint8_t backlight_value = 100;
-static uint8_t frame_index = 0;
 
 
 static bool lcd_request_draw = false;
@@ -60,8 +61,7 @@ static volatile uint32_t draw_fps = 30;
 static volatile uint32_t draw_frame_time = 0;
 
 
-static uint16_t *p_draw_frame_buf = NULL;
-static uint16_t __attribute__((aligned(64))) frame_buffer[1][HW_LCD_WIDTH * HW_LCD_HEIGHT];
+static uint16_t lcd_stream_buf[LCD_STREAM_BUF_PIXELS];
 
 
 
@@ -73,6 +73,8 @@ static volatile bool requested_from_thread = false;
 
 static void disHanFont(int x, int y, han_font_t *FontPtr, uint16_t textcolor);
 static void lcdDrawLineBuffer(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t color, lcd_pixel_t *line);
+static bool lcdClipRect(int16_t *x, int16_t *y, int16_t *w, int16_t *h);
+static void lcdSendColorRepeat(uint16_t color, uint32_t length);
 
 
 #ifdef _USE_HW_CLI
@@ -102,20 +104,15 @@ bool lcdInit(void)
   st7735Init();
   st7735InitDriver(&lcd);
 #endif
+#ifdef _USE_HW_ILI9488
+  ili9488Init();
+  ili9488InitDriver(&lcd);
+#endif
 
   lcd.setCallBack(TransferDoneISR);
 
 
-  for (int i=0; i<LCD_WIDTH*LCD_HEIGHT; i++)
-  {
-    frame_buffer[0][i] = black;
-  }
-  memset(frame_buffer, 0x00, sizeof(frame_buffer));
-
-  p_draw_frame_buf = frame_buffer[frame_index];
-
   lcdDrawFillRect(0, 0, LCD_WIDTH, LCD_HEIGHT, black);
-  lcdUpdateDraw();
 
   lcdSetBackLight(100);
 
@@ -170,29 +167,38 @@ void lcdSetBackLight(uint8_t value)
 
 LCD_OPT_DEF uint32_t lcdReadPixel(uint16_t x_pos, uint16_t y_pos)
 {
-  return p_draw_frame_buf[y_pos * LCD_WIDTH + x_pos];
+  (void)x_pos;
+  (void)y_pos;
+
+  return 0;
 }
 
 LCD_OPT_DEF void lcdDrawPixel(uint16_t x_pos, uint16_t y_pos, uint32_t rgb_code)
 {
-  p_draw_frame_buf[y_pos * LCD_WIDTH + x_pos] = rgb_code;
+  uint16_t color = (uint16_t)rgb_code;
+
+  if ((x_pos >= LCD_WIDTH) || (y_pos >= LCD_HEIGHT))
+  {
+    return;
+  }
+
+  if ((lcd.setWindow == NULL) || (lcd.sendBuffer == NULL))
+  {
+    return;
+  }
+
+  lcd.setWindow(x_pos, y_pos, x_pos, y_pos);
+  lcd.sendBuffer((uint8_t *)&color, 1, 0);
 }
 
 LCD_OPT_DEF void lcdClear(uint32_t rgb_code)
 {
   lcdClearBuffer(rgb_code);
-
-  lcdUpdateDraw();
 }
 
 LCD_OPT_DEF void lcdClearBuffer(uint32_t rgb_code)
 {
-  uint16_t *p_buf = lcdGetFrameBuffer();
-
-  for (int i=0; i<LCD_WIDTH * LCD_HEIGHT; i++)
-  {
-    p_buf[i] = rgb_code;
-  }
+  lcdDrawFillRect(0, 0, LCD_WIDTH, LCD_HEIGHT, (uint16_t)rgb_code);
 }
 
 LCD_OPT_DEF void lcdDrawFillCircle(int32_t x0, int32_t y0, int32_t r, uint16_t color)
@@ -392,10 +398,8 @@ bool lcdRequestDraw(void)
     return false;
   }
 
-  lcd.setWindow(0, 0, LCD_WIDTH-1, LCD_HEIGHT-1);
-
   lcd_request_draw = true;
-  lcd.sendBuffer((uint8_t *)frame_buffer[frame_index], LCD_WIDTH * LCD_HEIGHT, 0);
+  TransferDoneISR();
 
   return true;
 }
@@ -416,12 +420,12 @@ void lcdSetWindow(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 
 uint16_t *lcdGetFrameBuffer(void)
 {
-  return (uint16_t *)p_draw_frame_buf;
+  return NULL;
 }
 
 uint16_t *lcdGetCurrentFrameBuffer(void)
 {
-  return (uint16_t *)frame_buffer[frame_index];
+  return NULL;
 }
 
 void lcdDisplayOff(void)
@@ -568,20 +572,28 @@ void lcdDrawLineBuffer(int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint16_t 
 
 void lcdDrawVLine(int16_t x, int16_t y, int16_t h, uint16_t color)
 {
-  lcdDrawLine(x, y, x, y+h-1, color);
+  lcdDrawFillRect(x, y, 1, h, color);
 }
 
 void lcdDrawHLine(int16_t x, int16_t y, int16_t w, uint16_t color)
 {
-  lcdDrawLine(x, y, x+w-1, y, color);
+  lcdDrawFillRect(x, y, w, 1, color);
 }
 
 void lcdDrawFillRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
 {
-  for (int16_t i=x; i<x+w; i++)
+  if (lcdClipRect(&x, &y, &w, &h) != true)
   {
-    lcdDrawVLine(i, y, h, color);
+    return;
   }
+
+  if ((lcd.setWindow == NULL) || (lcd.sendBuffer == NULL))
+  {
+    return;
+  }
+
+  lcd.setWindow(x, y, x + w - 1, y + h - 1);
+  lcdSendColorRepeat(color, (uint32_t)w * (uint32_t)h);
 }
 
 void lcdDrawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
@@ -595,6 +607,90 @@ void lcdDrawRect(int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color)
 void lcdDrawFillScreen(uint16_t color)
 {
   lcdDrawFillRect(0, 0, HW_LCD_WIDTH, HW_LCD_HEIGHT, color);
+}
+
+static bool lcdClipRect(int16_t *x, int16_t *y, int16_t *w, int16_t *h)
+{
+  int32_t x0;
+  int32_t y0;
+  int32_t x1;
+  int32_t y1;
+
+  if ((*w <= 0) || (*h <= 0))
+  {
+    return false;
+  }
+
+  x0 = *x;
+  y0 = *y;
+  x1 = x0 + *w - 1;
+  y1 = y0 + *h - 1;
+
+  if ((x0 >= LCD_WIDTH) || (y0 >= LCD_HEIGHT) || (x1 < 0) || (y1 < 0))
+  {
+    return false;
+  }
+
+  if (x0 < 0)
+  {
+    x0 = 0;
+  }
+
+  if (y0 < 0)
+  {
+    y0 = 0;
+  }
+
+  if (x1 >= LCD_WIDTH)
+  {
+    x1 = LCD_WIDTH - 1;
+  }
+
+  if (y1 >= LCD_HEIGHT)
+  {
+    y1 = LCD_HEIGHT - 1;
+  }
+
+  *x = (int16_t)x0;
+  *y = (int16_t)y0;
+  *w = (int16_t)(x1 - x0 + 1);
+  *h = (int16_t)(y1 - y0 + 1);
+
+  return true;
+}
+
+static void lcdSendColorRepeat(uint16_t color, uint32_t length)
+{
+  uint32_t init_len;
+
+  if ((length == 0U) || (lcd.sendBuffer == NULL))
+  {
+    return;
+  }
+
+  init_len = length;
+  if (init_len > LCD_STREAM_BUF_PIXELS)
+  {
+    init_len = LCD_STREAM_BUF_PIXELS;
+  }
+
+  for (uint32_t i = 0; i < init_len; i++)
+  {
+    lcd_stream_buf[i] = color;
+  }
+
+  while (length > 0U)
+  {
+    uint32_t tx_len = length;
+
+    if (tx_len > LCD_STREAM_BUF_PIXELS)
+    {
+      tx_len = LCD_STREAM_BUF_PIXELS;
+    }
+
+    lcd.sendBuffer((uint8_t *)lcd_stream_buf, tx_len, 0);
+    length -= tx_len;
+  }
 }
 
 void lcdPrintf(int x, int y, uint16_t color,  const char *fmt, ...)

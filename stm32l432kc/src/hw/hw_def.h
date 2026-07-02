@@ -29,7 +29,7 @@
 #define		 HW_BUTTON_MAX_CH		      1
 
 #define	_USE_HW_GPIO
-#define		 HW_GPIO_MAX_CH			      1
+#define		 HW_GPIO_MAX_CH			      4
 
 #define _USE_HW_CAN
 #define      HW_CAN_FD              0
@@ -49,8 +49,8 @@
 #define      HW_SPI_MAX_CH          2
 
 #define _USE_HW_LCD
-#define _USE_HW_ILI9341
-#define   HW_LCD_WIDTH              240
-#define   HW_LCD_HEIGHT             320
+#define _USE_HW_ILI9488
+#define   HW_LCD_WIDTH              320
+#define   HW_LCD_HEIGHT             480
 
 #endif /* SRC_HW_HW_DEF_H_ */

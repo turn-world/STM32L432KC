@@ -22,7 +22,10 @@ typedef struct
 
 button_tbl_t gpio_tbl[GPIO_MAX_CH] =
 {
-    {GPIOA, GPIO_PIN_8, _DEF_OUTPUT , GPIO_PIN_SET, GPIO_PIN_RESET, _DEF_LOW},
+    {GPIOA, GPIO_PIN_8, _DEF_OUTPUT , GPIO_PIN_SET, GPIO_PIN_RESET, _DEF_LOW},                  // 1. 아날로그 사용시
+    {GPIOA, GPIO_PIN_9, _DEF_OUTPUT , GPIO_PIN_SET, GPIO_PIN_RESET, _DEF_LOW},                  // 2. ILI9488 CS
+    {GPIOA, GPIO_PIN_10, _DEF_OUTPUT , GPIO_PIN_SET, GPIO_PIN_RESET, _DEF_LOW},                 // 3. ILI9488 DC
+    {GPIOB, GPIO_PIN_0, _DEF_OUTPUT , GPIO_PIN_SET, GPIO_PIN_RESET, _DEF_LOW},                  // 4. ILI9488 RST
 };
 
 #ifdef _USE_HW_CLI

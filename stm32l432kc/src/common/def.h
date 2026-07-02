@@ -17,6 +17,10 @@
 #include <string.h>
 #include <stdlib.h>
 
+#define _DEF_GPIO1            0
+#define _DEF_GPIO2            1
+#define _DEF_GPIO3            2
+#define _DEF_GPIO4            3
 
 #define _DEF_LED1           	0
 #define _DEF_LED2           	1

@@ -16,20 +16,14 @@ void hwInit(void)
   cliInit();
 #endif
 
-  ledInit();
+  //ledInit();
 
-#ifdef _USE_HW_UART
   uartInit();
-#endif
-
   gpioInit();
   canInit();
   spiInit();
+  lcdInit();
   rtcInit();
-
-#ifdef _USE_HW_FATFS
   fatfsInit();
-#endif
-
   adcInit();
 }

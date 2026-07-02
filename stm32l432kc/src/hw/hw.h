@@ -19,6 +19,7 @@
 #include "adc.h"
 #include "spi.h"
 #include "rtc.h"
+#include "lcd.h"
 
 void hwInit(void);
 

@@ -25,9 +25,9 @@ extern "C" {
 #define APPS_CAN_CH                        _DEF_CAN1
 
 #define APPS_SIGNAL1_RAW_MIN_DEFAULT       0U
-#define APPS_SIGNAL1_RAW_MAX_DEFAULT       0U
+#define APPS_SIGNAL1_RAW_MAX_DEFAULT       3102U      //2.5v
 #define APPS_SIGNAL2_RAW_MIN_DEFAULT       0U
-#define APPS_SIGNAL2_RAW_MAX_DEFAULT       0U
+#define APPS_SIGNAL2_RAW_MAX_DEFAULT       4095U      //3.3v
 
 #define APPS_RAW_LOW_MARGIN                80U
 #define APPS_RAW_HIGH_MARGIN               80U
